@@ -1,3 +1,4 @@
+import math
 
 class Instance:
 
@@ -41,3 +42,7 @@ class Instance:
         print("Nombre d'objets : " + str(self.nb_obj))
         for obj in range(1,self.nb_obj):
             print("Objet #" + str(obj) + " : t = " + str(self.obj_taille[obj]) + " ; nb = " + str(self.obj_nb[obj]))
+
+    def relaxation_lineaire(self):
+        return math.ceil(sum(self.obj_taille)/self.cap)
+
