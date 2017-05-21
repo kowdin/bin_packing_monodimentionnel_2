@@ -1,0 +1,54 @@
+!@encoding CP1252
+model UFLP
+uses "mmxprs"; !gain access to the Xpress-Optimizer solver
+
+!decalration
+declarations
+	n = 10
+	ITEM = 1..n
+	c: array(ITEM , ITEM) of real
+	u: array(ITEM) of mpvar
+	x: array(ITEM , ITEM) of mpvar
+end-declarations
+
+c:: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
+forall(b in ITEM) u(b) is_binary
+forall(p in ITEM) forall(b in ITEM) x(p,b) is_binary
+
+!fonction objectif
+cost:= sum(b in ITEM)(u(b) + sum(p in ITEM)( x(p,b) * c(p,b) ))
+
+!contraintes de l'UFLP
+forall(p in ITEM) forall(b in ITEM) x(p,b) <= u(b)
+forall(p in ITEM) sum(b in ITEM) x(p,b) = 1
+
+!contraintes anti-symetries si tous les depos sont identiques
+forall(b in 1..(n-1)) u(b) >= u(b+1)
+forall(p in 2..n) forall(b in 2..n) x(p,b) <= sum(pp in 1..(p-1)) x(pp,b-1)
+x(1,1) = 1
+
+!resolution
+minimize(cost)
+
+!affichage
+writeln("Solution:\n \tObjective: ", getobjval)
+write("\tDepos : ") 
+forall(b in ITEM) write(getsol(u(b))," ")
+write("\n\t Clients : ")
+forall(p in ITEM) do
+	write("\n\t\t",p," : ")
+	forall(b in ITEM) do
+		write(getsol(x(p,b))," ")
+	end-do
+end-do
+end-model

@@ -1,0 +1,99 @@
+!@encoding CP1252
+model UFLP
+uses "mmxprs"; !gain access to the Xpress-Optimizer solver
+
+!decalration
+declarations
+	n = 10
+	ITEM = 1..n
+	s: array(ITEM , ITEM) of real
+	u: array(ITEM) of mpvar
+	x: array(ITEM , ITEM) of mpvar
+	mu: real
+	epsilon = 1
+	omega = 4
+	nu: array(ITEM) of real
+	capacite = 3
+end-declarations
+
+s:: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+mu:= 1
+forall(b in ITEM) nu(b):= 0
+forall(b in ITEM) u(b) is_binary
+forall(p in ITEM) forall(b in ITEM) x(p,b) is_binary
+
+
+!contraintes de l'UFLP
+forall(p in ITEM) forall(b in ITEM) x(p,b) <= u(b)
+forall(p in ITEM) sum(b in ITEM) x(p,b) = 1
+
+!contraintes anti-symetries
+forall(b in 1..(n-1)) u(b) >= u(b+1)
+forall(p in 2..n) forall(b in 2..n) x(p,b) <= sum(pp in 1..(p-1)) x(pp,b-1)
+x(1,1) = 1
+
+!première resolution
+minimize(sum(b in ITEM)(u(b) + sum(p in ITEM)( x(p,b) * s(p,b) * nu(b) )))
+writeln("Première Solution:\n \tObjective: ", getobjval)
+write("\tDepos : ") 
+forall(b in ITEM) write(getsol(u(b))," ")
+write("\n\t Clients : ")
+forall(p in ITEM) do
+	write("\n\t\t",p," : ")
+	forall(b in ITEM) do
+		write(getsol(x(p,b))," ")
+	end-do
+end-do
+writeln("\n")
+
+!boucle
+while (mu > 0.0000001) do
+	mu:= epsilon * (omega - getobjval) / sum(b in ITEM)((capacite - sum(p in ITEM)(getsol(x(p,b))))*(capacite - sum(p in ITEM)(getsol(x(p,b)))))
+	forall(b in ITEM) do
+		nu(b):= nu(b) - mu * (capacite - sum(p in ITEM)(getsol(x(p,b))))
+		if nu(b) < 0 then
+			nu(b):= 0
+		end-if
+	end-do
+	
+	!nouvelle resolution 
+	minimize(sum(b in ITEM)(u(b) + sum(p in ITEM)( x(p,b) * s(p,b) * nu(b) )))	
+
+	!affichage
+	writeln(mu)
+	forall(b in ITEM) write(nu(b)," ")
+	writeln("\nSolution:\n \tObjective: ", getobjval)
+	write("\tDepos : ") 
+	forall(b in ITEM) write(getsol(u(b))," ")
+	write("\n\t Clients : ")
+	forall(p in ITEM) do
+		write("\n\t\t",p," : ")
+		forall(b in ITEM) do
+			write(getsol(x(p,b))," ")
+		end-do
+	end-do
+	writeln("\n")
+end-do
+
+!affichage
+writeln("Solution:\n \tObjective: ", getobjval)
+write("\tDepos : ") 
+forall(b in ITEM) write(getsol(u(b))," ")
+write("\n\t Clients : ")
+forall(p in ITEM) do
+	write("\n\t\t",p," : ")
+	forall(b in ITEM) do
+		write(getsol(x(p,b))," ")
+	end-do
+end-do
+
+end-model

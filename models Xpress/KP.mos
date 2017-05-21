@@ -1,0 +1,35 @@
+!@encoding CP1252
+model ModelName
+uses "mmxprs"; !gain access to the Xpress-Optimizer solver
+
+!sample declarations section
+declarations
+	n = 10
+	ITEM = 1..n
+	
+	v: array(ITEM) of real
+	p: array(ITEM) of real
+	x: array(ITEM) of mpvar
+	c = 11
+end-declarations
+
+v:: [1,2,3,4,5,6,7,8,9,10]
+p:: [1,2,3,4,5,6,7,8,9,10]
+forall(i in ITEM) x(i) is_binary
+
+!fonction objectif
+valeur:= sum(i in ITEM)(v(i) * x(i))
+
+!contraintes
+sum(i in ITEM) p(i) * x(i) <= c
+
+!resolution
+maximize(valeur)
+
+!affichage
+writeln("Solution:\n \tObjective: ", getobjval)
+writeln("\tEspace pris : ",sum(i in ITEM) getsol(p(i)) * getsol(x(i)))
+write("\tObjets choisis : ")
+forall(i in ITEM) write(getsol(x(i))," ")
+
+end-model
