@@ -1,0 +1,64 @@
+!@encoding CP1252
+model ModelName
+uses "mmxprs"; !gain access to the Xpress-Optimizer solver
+
+!decalration
+declarations
+	n: integer !nombre d'objets
+	capacite: integer !capacite des bin
+end-declarations
+
+!debut de lecture
+fopen("Falkenauer_t60_00.txt",F_INPUT)
+readln(n)
+readln(capacite)
+
+!fin des declarations (en fonction des premiers parametres)
+declarations
+	ITEM = 1..n
+	s: array(ITEM) of real !poids des objets
+	u: array(ITEM) of mpvar !vecteur d'ouverture des bins
+	x: array(ITEM) of mpvar !vecteur d'association des objets
+	mu: real
+	epsilon = 1
+	omega = 30 !TODO best fit
+	nu: array(ITEM) of real
+end-declarations
+forall(p in ITEM) nu(p):= 0.1
+mu:= 1
+
+!contraintes de sac a dos
+sum(p in ITEM)(s(p) * x(p)) <= capacite
+forall(p in ITEM) x(p) is_binary
+
+!premiere optimisation
+maximize(sum(p in ITEM)(nu(p) * x(p)))
+writeln(getobjval)
+forall(p in ITEM) write(getsol(x(p))," ")
+writeln("\n")
+
+!boucle
+while (mu > 0.0000001) do
+	if getobjval >= 1 then
+		!la solution est n fois le patern du sac a dos optimal
+		mu:= epsilon * (omega - n - n*getobjval - sum(p in ITEM)(nu(p)) ) / (sum(p in ITEM)( (1-n*getsol(x(p)))*(1-n*getsol(x(p)))) *n)
+		forall(p in ITEM) nu(p):= nu(p) - mu * (1 - n*getsol(x(p)))
+	else
+		!rien n'ouvre
+		mu:= epsilon * (omega - sum(p in ITEM)(nu(p))) / n
+		forall(p in ITEM) nu(p):= nu(p) - mu
+	end-if
+
+	maximize(sum(p in ITEM)(nu(p) * x(p)))
+	writeln(getobjval)
+	forall(p in ITEM) write(getsol(x(p))," ")
+	writeln("\n")
+end-do
+
+if getobjval >= 1 then
+	writeln(n - n*getobjval + sum(p in ITEM)(nu(p)))
+else
+	writeln(sum(p in ITEM)(nu(p)))
+end-if
+
+end-model
