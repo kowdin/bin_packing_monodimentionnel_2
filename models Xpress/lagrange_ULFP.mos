@@ -4,63 +4,94 @@ uses "mmxprs"; !gain access to the Xpress-Optimizer solver
 
 !decalration
 declarations
-	n: integer
+	n: integer !nombre d'objets
 	capacite: integer
 end-declarations
 
 !debut de lecture
-fopen("Falkenauer_t60_00.txt",F_INPUT)
+fopen("data.txt",F_INPUT)
 readln(n)
 readln(capacite)
 
-!fin des declarations (en fonction des premiers parametres)
+!suite des declarations (en fonction des premiers parametres)
 declarations
-	ITEM = 1..n
+	ITEM = 1..n !range des objets
 	s: array(ITEM) of real
-	u: array(ITEM) of mpvar
-	x: array(ITEM , ITEM) of mpvar
-	mu: real
-	epsilon = 1
-	omega = 4 !TODO best fit
-	nu: array(ITEM) of real
+	m: integer !nombre de bin maximal (a determiner avec best-fit)
+	tmpCap: array(ITEM) of real !pour le calcul de bestfit
+	tmpi: integer
 end-declarations
 
 !fin de la lecture
 forall(p in ITEM) readln(s(p))
 
+!best-fit (juste calcul de la valeur)
+forall(b in ITEM) tmpCap(b):= capacite
+forall(p in ITEM) do
+	tmpi:=1
+	while(s(p) > tmpCap(tmpi)) do
+		tmpi:= tmpi +1
+	end-do
+	tmpCap(tmpi):= tmpCap(tmpi) - s(p)
+end-do
+m:=1
+while(tmpCap(m) < capacite) do
+	m:=m+1
+end-do
+writeln("valeur de best-fit : ",m)
+
+!fin des decalrations (en fonction de best-fit)
+declarations
+	BIN = 1..m !range des bins
+	u: array(BIN) of mpvar
+	x: array(ITEM , BIN) of mpvar
+	mu: real
+	epsilon = 1
+	omega = m
+	nu: array(BIN) of real
+end-declarations
+
 !initialisations statiques
 mu:= 1
-forall(b in ITEM) nu(b):= 0
-forall(b in ITEM) u(b) is_binary
-forall(p in ITEM) forall(b in ITEM) x(p,b) is_binary
+forall(b in BIN) nu(b):= 0
+forall(b in BIN) u(b) is_binary
+forall(p in ITEM) forall(b in BIN) x(p,b) is_binary
 
 !contraintes de l'UFLP
-forall(p in ITEM) forall(b in ITEM) x(p,b) <= u(b)
-forall(p in ITEM) sum(b in ITEM) x(p,b) = 1
+function minoftwo (a:integer,b:integer): integer
+    if a<b then
+    	returned:= a
+    else
+    	returned:= b
+    end-if
+end-function
+!forall(p in ITEM) forall(b in BIN) x(p,b) <= u(b) !peut etre reduit car l'objet i est au plus dans le bin i (CF contrainte de symetrie)
+forall(p in ITEM) forall(b in 1.. minoftwo(p,m)) x(p,b) <= u(b)
+forall(p in ITEM) sum(b in BIN) x(p,b) = 1
 
 !contraintes anti-symetries
-forall(b in 1..(n-1)) u(b) >= u(b+1)
-forall(p in 2..n) forall(b in 2..n) x(p,b) <= sum(pp in 1..(p-1)) x(pp,b-1)
+forall(b in 1..(m-1)) u(b) >= u(b+1)
+forall(p in 2..n) forall(b in 2..m) x(p,b) <= sum(pp in 1..(p-1)) x(pp,b-1)
 x(1,1) = 1
 
 !première resolution
-minimize(sum(b in ITEM)(u(b) + sum(p in ITEM)( x(p,b) * s(p) * nu(b) )))
+minimize(sum(b in BIN)(u(b) + sum(p in ITEM)( x(p,b) * s(p) * nu(b) )))
 writeln("Première Solution:\n \tObjective: ", getobjval)
 write("\tDepos : ") 
-forall(b in ITEM) write(getsol(u(b))," ")
+forall(b in BIN) write(getsol(u(b))," ")
 write("\n\t Clients : ")
 forall(p in ITEM) do
 	write("\n\t\t",p," : ")
-	forall(b in ITEM) do
+	forall(b in BIN) do
 		write(getsol(x(p,b))," ")
 	end-do
 end-do
 writeln("\n")
 
 !boucle
-while (mu > 0.0000001) do
-	mu:= epsilon * (omega - getobjval) / sum(b in ITEM)((capacite - sum(p in ITEM)(s(p)*getsol(x(p,b))))*(capacite - sum(p in ITEM)(s(p)*getsol(x(p,b)))))
-	forall(b in ITEM) do
+while (mu > 0.00000001) do
+	mu:= epsilon * (omega - getobjval) / sum(b in BIN)((capacite - sum(p in ITEM)(s(p)*getsol(x(p,b))))*(capacite - sum(p in ITEM)(s(p)*getsol(x(p,b)))))
+	forall(b in BIN) do
 		nu(b):= nu(b) - mu * (capacite - sum(p in ITEM)(s(p)*getsol(x(p,b))))
 		if nu(b) < 0 then
 			nu(b):= 0
@@ -68,18 +99,18 @@ while (mu > 0.0000001) do
 	end-do
 	
 	!nouvelle resolution 
-	minimize(sum(b in ITEM)(u(b) + sum(p in ITEM)( x(p,b) * s(p) * nu(b) )))	
+	minimize(sum(b in BIN)(u(b) + sum(p in ITEM)( x(p,b) * s(p) * nu(b) )))	
 
 	!affichage
 	writeln(mu)
-	forall(b in ITEM) write(nu(b)," ")
+	forall(b in BIN) write(nu(b)," ")
 	writeln("\nSolution:\n \tObjective: ", getobjval)
 	write("\tDepos : ") 
-	forall(b in ITEM) write(getsol(u(b))," ")
+	forall(b in BIN) write(getsol(u(b))," ")
 	write("\n\t Clients : ")
 	forall(p in ITEM) do
 		write("\n\t\t",p," : ")
-		forall(b in ITEM) do
+		forall(b in BIN) do
 			write(getsol(x(p,b))," ")
 		end-do
 	end-do
@@ -89,11 +120,11 @@ end-do
 !affichage
 writeln("Solution:\n \tObjective: ", getobjval)
 write("\tDepos : ") 
-forall(b in ITEM) write(getsol(u(b))," ")
+forall(b in BIN) write(getsol(u(b))," ")
 write("\n\t Clients : ")
 forall(p in ITEM) do
 	write("\n\t\t",p," : ")
-	forall(b in ITEM) do
+	forall(b in BIN) do
 		write(getsol(x(p,b))," ")
 	end-do
 end-do

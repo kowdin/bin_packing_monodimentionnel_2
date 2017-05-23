@@ -5,27 +5,55 @@ uses "mmxprs"; !gain access to the Xpress-Optimizer solver
 !decalration
 declarations
 	n: integer !nombre d'objets
-	capacite: integer !capacite des bin
+	capacite: integer
 end-declarations
 
 !debut de lecture
-fopen("Falkenauer_t60_00.txt",F_INPUT)
+fopen("data.txt",F_INPUT)
 readln(n)
 readln(capacite)
 
-!fin des declarations (en fonction des premiers parametres)
+!suite des declarations (en fonction des premiers parametres)
 declarations
-	ITEM = 1..n
-	s: array(ITEM) of real !poids des objets
-	u: array(ITEM) of mpvar !vecteur d'ouverture des bins
-	x: array(ITEM) of mpvar !vecteur d'association des objets
+	ITEM = 1..n !range des objets
+	s: array(ITEM) of real
+	m: integer !nombre de bin maximal (a determiner avec best-fit)
+	tmpCap: array(ITEM) of real !pour le calcul de bestfit
+	tmpi: integer
+end-declarations
+
+!fin de la lecture
+forall(p in ITEM) readln(s(p))
+
+!best-fit (juste calcul de la valeur)
+forall(b in ITEM) tmpCap(b):= capacite
+forall(p in ITEM) do
+	tmpi:=1
+	while(s(p) > tmpCap(tmpi)) do
+		tmpi:= tmpi +1
+	end-do
+	tmpCap(tmpi):= tmpCap(tmpi) - s(p)
+end-do
+m:=1
+while(tmpCap(m) < capacite) do
+	m:=m+1
+end-do
+writeln("valeur de best-fit : ",m)
+
+!fin des decalrations (en fonction de best-fit)
+declarations
+	BIN = 1..m !range des bins
+	x: array(ITEM) of mpvar
 	mu: real
 	epsilon = 1
-	omega = 30 !TODO best fit
+	omega = m
 	nu: array(ITEM) of real
 end-declarations
-forall(p in ITEM) nu(p):= 0.1
+
+!initialisations statiques
 mu:= 1
+forall(b in BIN) nu(b):= 1
+forall(p in ITEM) x(p) is_binary
 
 !contraintes de sac a dos
 sum(p in ITEM)(s(p) * x(p)) <= capacite
@@ -38,11 +66,12 @@ forall(p in ITEM) write(getsol(x(p))," ")
 writeln("\n")
 
 !boucle
-while (mu > 0.0000001) do
-	if getobjval >= 1 then
+while (mu > 0.00000001) do
+!TODO revoir cette partie
+	if getobjval > 1 then
 		!la solution est n fois le patern du sac a dos optimal
-		mu:= epsilon * (omega - n - n*getobjval - sum(p in ITEM)(nu(p)) ) / (sum(p in ITEM)( (1-n*getsol(x(p)))*(1-n*getsol(x(p)))) *n)
-		forall(p in ITEM) nu(p):= nu(p) - mu * (1 - n*getsol(x(p)))
+		mu:= epsilon * (omega - m + m*getobjval - sum(p in ITEM)(nu(p)) ) / (sum(p in ITEM)( (1-m*getsol(x(p)))*(1-m*getsol(x(p)))))
+		forall(p in ITEM) nu(p):= nu(p) - mu * (1 - m*getsol(x(p)))
 	else
 		!rien n'ouvre
 		mu:= epsilon * (omega - sum(p in ITEM)(nu(p))) / n
@@ -55,7 +84,7 @@ while (mu > 0.0000001) do
 	writeln("\n")
 end-do
 
-if getobjval >= 1 then
+if getobjval > 1 then
 	writeln(n - n*getobjval + sum(p in ITEM)(nu(p)))
 else
 	writeln(sum(p in ITEM)(nu(p)))
