@@ -13,31 +13,20 @@ int main() {
 
     instance.charger("Falkenauer_u500_09.txt");
 
-    instance.resoudreCPLEX();
-
     // génération d'un vecteur de multiplicateurs
     int nBoite = instance.bestFit();
 
     cout << "bestFit: " << nBoite << endl;
 
-    vector<double> mult(instance.nObj(), 1);
+    vector<double> mult(instance.nObj(), 0);
     vector<double> grad(instance.nObj(), 0);
 
-    cout << "relaxation lagrangienne: " << instance.relaxLag(nBoite, mult, grad) << endl;
+    // cout << "relaxation lagrangienne: " << instance.relaxLag(nBoite, mult, grad) << endl;
 
-    /*for(int j = 0; j < 100; j++) {
-
-        for(int i = 0; i < mult.size(); i++) {
-            mult.at(i) = (rand()/(double)RAND_MAX)*0.2;
-        }
-        cout << "relaxation lagrangienne: " << instance.relaxLag(nBoite, mult, grad) << endl;
-        cout << endl;
-    }*/
-
-    /*double pas = 5.2;
-    double rho = 0.999;
+    double pas = 0.000000005;
+    double rho = 0.00001;
     int it = 1;
-    while(rho > 1e-12) {
+    while(rho > 1e-15) {
 
         cout << "relaxation lagrangienne: " << instance.relaxLag(nBoite, mult, grad) << endl;
 
@@ -46,18 +35,18 @@ int main() {
             mult.at(i) += grad.at(i)*pas;
         }
 
-        pas *= rho;
-        rho *= rho;
+        // pas *= rho;
+        // rho *= rho;
         it ++;
-    }*/
+    }
 
-    /*double epsilon = 1e-2;
+    /*double epsilon = 1e-10;
     double pas = 1.;
     double relax = 0.;
     double norm;
 
     int k = 0;
-    while(pas >= 1e-12) {
+    while(pas >= 1e-16) {
 
         relax = instance.relaxLag(nBoite, mult, grad);
         cout << "relaxation lagrangienne: " << relax << endl;

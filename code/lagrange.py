@@ -11,13 +11,13 @@ def relax_lagrange(instance):
 	best  = -1000 #variable de retour
 
 	n = 0 #nombre d'objet a placer
-	for i in range(0,instance.nb_obj):
+	for i in range(0,instance.nb_obj_diff):
 		n += instance.obj_nb[i]
 	m = best_fit(instance) #nombre de bin maximal
 	c = instance.cap #taille des bin
 	x = [[0] * m for _ in range(n)] #matrice d'association objet/bin
 	s = [0] * n #poid/taille des objets
-	for i in range(0, instance.nb_obj):
+	for i in range(0, instance.nb_obj_diff):
 		for j in range(0, instance.obj_nb[i]):
 			s[acc] = instance.obj_taille[i]
 			acc +=1
@@ -26,7 +26,7 @@ def relax_lagrange(instance):
 	gamma = [0.1] * n #coeficient de lagrange de la contrainte tout objet
 	nu_mu = 0.001 #taille initiale du pas de mu (pour b sinon calcule)
 	nu_gamma = 10 #taille initiale du pas de gamma (pour b sinon calcule)
-	
+
 	#pour le choix de pas b
 	#rho_nu_mu = 0.9 #facteur entre 2 taille de pas de mu
 	#rho_nu_gamma = 0.9 #facteur entre 2 taille de pas de gamma
@@ -34,12 +34,12 @@ def relax_lagrange(instance):
 	#tmax_nu_gamma = 5 #nombre de tour entre 2 reduction de nu_gamma
 	#t_nu_mu = tmax_nu_mu #nombre de tour avant la prochaine reduction de nu_mu
 	#t_nu_gamma = tmax_nu_gamma #nombre de tour avant la prochaine reduction de nu_gamma
-	
+
 	#pour le choix de pas c
 	epsilon_nu_mu = 0.12 #facteur de reglage de la taille des pas de mu
 	epsilon_nu_gamma = 0.15 #facteur de reglage de la taille des pas de gamma
 #debut
-	
+
 	#si tout les coeficients lagrangiens sont nul alors rien n'est ouvert/assigné
 	#on a donc deja initialisé les variables comme après cette première resolution
 	#calcul du score
@@ -82,7 +82,7 @@ def relax_lagrange(instance):
 	#print("gamma : "+str(gamma)+"\n")
 
 	#boucle principale de descente de gradient
-	while (nu_mu > pow(10,-4)) or (nu_gamma > pow(10,-4)):
+	while (nu_mu > 10**-4) or (nu_gamma > 10**-4):
 		#resolution des sous-problèmes
 		for b in range(0,m): #un problème par bin
 			for p in range(b,n): #on commence a b pour implementer la contrainte anti symetrie

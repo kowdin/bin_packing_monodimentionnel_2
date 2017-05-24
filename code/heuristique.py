@@ -6,7 +6,7 @@ def best_fit(instance):
     bins = list() # liste des capacités des bins en cours de remplissage
 
     # pour tous les types d'objets à ranger, ajout des objets du plus grand au plus petit
-    for ind_obj in range(0,instance.nb_obj):
+    for ind_obj in range(0,instance.nb_obj_diff):
 
         # ajout des objets pour cette taille
         for nb in range(0,instance.obj_nb[ind_obj]):
