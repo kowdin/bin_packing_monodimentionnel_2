@@ -4,6 +4,7 @@ class Instance:
 
     cap = 0
     nb_obj = 0
+    # premier formatage des données
     obj_taille = list()
     obj_nb = list()
 
@@ -24,7 +25,7 @@ class Instance:
 
         # objets
         self.nb_obj = 0
-        for ligne in range(1,nb_ligne):
+        for ligne in range(0,nb_ligne):
 
             taille = int(file.readline())
 
@@ -39,10 +40,14 @@ class Instance:
 
     def afficher(self):
         print("Capacités des boîtes : " + str(self.cap))
-        print("Nombre d'objets : " + str(self.nb_obj))
+        print("Nombre d'objets different: " + str(self.nb_obj))
+        print("Nombre d'objets : "+str(sum(self.obj_nb)))
         for obj in range(1,self.nb_obj):
             print("Objet #" + str(obj) + " : t = " + str(self.obj_taille[obj]) + " ; nb = " + str(self.obj_nb[obj]))
 
     def relaxation_lineaire(self):
-        return math.ceil(sum(self.obj_taille)/self.cap)
+        acc = 0
+        for i in range(1,self.nb_obj):
+            acc += self.obj_nb[i] * self.obj_taille[i]
+        return math.ceil(acc/self.cap)
 

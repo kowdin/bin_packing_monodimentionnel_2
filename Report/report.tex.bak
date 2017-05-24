@@ -83,7 +83,7 @@ Soit $u^*_b$ et $x^*_{bp}$ la valeur des variables dans la solution optimale de 
 
 \begin{itemize}
     \item réaliser un parseur $\Rightarrow$ OK
-    \item faire la relaxation continue
+    \item faire la relaxation continue $\Rightarrow$ OK
     \item heuristique pour borne supérieure (best fit) $\Rightarrow$ OK
     \item relaxation lagrangienne + réparation
     \item tests statistiques

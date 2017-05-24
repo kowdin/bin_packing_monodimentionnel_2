@@ -24,7 +24,7 @@ def best_fit(instance):
 
             # ouverture d'un nouveau bin si nécessaire
             if not trouve:
-                bins.append(0)
+                bins.append(instance.obj_taille[ind_obj])
                 nb_bin += 1
 
     return nb_bin
