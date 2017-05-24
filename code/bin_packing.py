@@ -4,8 +4,8 @@ from instance import Instance
 from heuristique import best_fit
 from lagrange import relax_lagrange
 
-#inst = Instance("../Instances/c150/Falkenauer_u120_00.txt")
-inst = Instance("jouet.txt")
+inst = Instance("../Instances/c150/Falkenauer_u250_02.txt")
+#inst = Instance("jouet.txt")
 #inst.afficher()
 
 print("L'heuristique best fit donne : " + str(best_fit(inst)))
