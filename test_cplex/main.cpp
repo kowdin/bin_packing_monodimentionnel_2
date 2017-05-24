@@ -13,13 +13,17 @@ int main() {
 
     instance.charger("Falkenauer_u500_09.txt");
 
+    instance.resoudreCPLEX();
+
     // génération d'un vecteur de multiplicateurs
     int nBoite = instance.bestFit();
 
     cout << "bestFit: " << nBoite << endl;
 
-    vector<double> mult(instance.nObj(), -50);
+    vector<double> mult(instance.nObj(), 1);
     vector<double> grad(instance.nObj(), 0);
+
+    cout << "relaxation lagrangienne: " << instance.relaxLag(nBoite, mult, grad) << endl;
 
     /*for(int j = 0; j < 100; j++) {
 
@@ -47,13 +51,13 @@ int main() {
         it ++;
     }*/
 
-    double epsilon = 1.;
+    /*double epsilon = 1e-2;
     double pas = 1.;
     double relax = 0.;
     double norm;
 
     int k = 0;
-    while(pas >= 1e-4) {
+    while(pas >= 1e-12) {
 
         relax = instance.relaxLag(nBoite, mult, grad);
         cout << "relaxation lagrangienne: " << relax << endl;
@@ -61,7 +65,6 @@ int main() {
         for(int i = 0; i < instance.nObj(); i++) {
             norm += grad.at(i);
         }
-
         norm *= norm;
         pas = epsilon*( (nBoite-relax)/(norm) );
 
@@ -73,7 +76,7 @@ int main() {
         cout << "pas " << k << " : " << pas << endl;
 
         k ++;
-    }
+    }*/
 
 
 

@@ -3,8 +3,8 @@ CC= g++
 CFLAGS= -std=c++11 -pedantic -Wfatal-errors -Wconversion -Wredundant-decls -Wshadow -Wall -Wextra -O3
 
 # cplex
-ICPLEX = -I "../../../../../../../ibm/ILOG/CPLEX_Studio1263/cplex/include" -I "../../../../../../../ibm/ILOG/CPLEX_Studio1263/concert/include"
-LCPLEX = -L "../../../../../../../ibm/ILOG/CPLEX_Studio1263/cplex/lib/x86-64_linux/static_pic" -L "../../../../../../../ibm/ILOG/CPLEX_Studio1263/concert/lib/x86-64_linux/static_pic" -lilocplex -lconcert -lcplex
+ICPLEX = -I "../../../ibm/ILOG/CPLEX_Studio1263/cplex/include" -I "../../../ibm/ILOG/CPLEX_Studio1263/concert/include"
+LCPLEX = -L "../../../ibm/ILOG/CPLEX_Studio1263/cplex/lib/x86-64_linux/static_pic" -L "../../../ibm/ILOG/CPLEX_Studio1263/concert/lib/x86-64_linux/static_pic" -lilocplex -lconcert -lcplex
 
 OBJECTS_FILES= main.o Instance.o
 

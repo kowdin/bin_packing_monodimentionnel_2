@@ -106,16 +106,15 @@ double Instance::relaxLag(int nBoite, vector<double>& mult, vector<double>& grad
     // résolution du problème de sac à dos
     IloEnv env;
     IloModel model(env);
-    vector<IloBoolVar*> _var(_nbObj, nullptr);
-
-    for(int i = 0; i < _nbObj; i++) {
-        _var.at(i) = new IloBoolVar(env);
+    vector<IloBoolVar> _var(_nbObj);
+    for(int i = 0; i < _var.size(); i++) {
+        _var.at(i) = IloBoolVar(env);
     }
 
     // fonction objectif
     IloExpr sumObj(env);
     for(int i = 0; i < _nbObj; i++) {
-        sumObj += mult.at(i)* *_var.at(i);
+        sumObj += mult.at(i)* _var.at(i);
     }
     model.add(IloMaximize(env, sumObj));
 
@@ -124,7 +123,7 @@ double Instance::relaxLag(int nBoite, vector<double>& mult, vector<double>& grad
     int indObj = 0;
     for(int i = 0; i < _obj.size(); i++) {
         for(int j = 0; j < _occObj.at(i); j++) {
-            sumCt += *_var.at(indObj)*_obj.at(i);
+            sumCt += _var.at(indObj)*_obj.at(i);
             indObj ++;
         }
     }
@@ -144,7 +143,7 @@ double Instance::relaxLag(int nBoite, vector<double>& mult, vector<double>& grad
 
     // calcul du gradient lagrangien
     for(int i = 0; i < _nbObj; i++) {
-        gradLG.at(i) = 1.-cplex.getValue(*_var.at(i))*nBoite;
+        gradLG.at(i) = 1.-cplex.getValue(_var.at(i))*nBoite;
     }
 
     /*cout << "valeurs variables cplex: " << endl;
@@ -153,10 +152,6 @@ double Instance::relaxLag(int nBoite, vector<double>& mult, vector<double>& grad
     }
     cout << endl;*/
 
-    for(int i = 0; i < _nbObj; i++) {
-        delete _var.at(i);
-    }
-
     // cout << "resCPX: " << resCPX << endl;
 
     if(resCPX >= 1.) {
@@ -164,4 +159,70 @@ double Instance::relaxLag(int nBoite, vector<double>& mult, vector<double>& grad
     } else {
         return sumLambda;
     }
+}
+
+void Instance::resoudreCPLEX() {
+
+    IloEnv env;
+    IloModel model(env);
+    vector<IloBoolVar*> _var(_nbObj, nullptr);
+
+    int nBoite = bestFit();
+
+    // variables
+    vector<IloBoolVar> _varBins(nBoite);
+    vector<vector<IloBoolVar> > x(_nbObj, vector<IloBoolVar>(nBoite));
+
+    for(int i = 0; i < nBoite; i++) {
+        _varBins.at(i) = IloBoolVar(env);
+    }
+    for(int i = 0; i < _nbObj; i++) {
+        for(int j = 0; j < nBoite; j++) {
+            x.at(i).at(j) = IloBoolVar(env);
+        }
+    }
+
+    // fonction objectif
+    IloExpr sumObj(env);
+    for(int i = 0; i < nBoite; i++) {
+        sumObj += _varBins.at(i);
+    }
+    model.add(IloMinimize(env, sumObj));
+
+    // contraintes
+
+    // un objet est dans une et une seule boîte
+    for(int i = 0; i < _nbObj; i++) {
+        IloExpr cont(env);
+        for(int j = 0; j < nBoite; j++) {
+            cont += x.at(i).at(j);
+        }
+        model.add(cont == 1);
+    }
+
+    // la capacité des boites est respectée
+    for(int i = 0; i < nBoite; i++) {
+        IloExpr cont(env);
+        int indObj = 0;
+        for(int j = 0; j < _obj.size(); j++) {
+            for(int k = 0; k < _occObj.at(j); k++) {
+                cont += x.at(indObj).at(i)*_obj.at(j);
+                indObj ++;
+            }
+        }
+        model.add(cont <= _varBins.at(i)*_tailleBin);
+    }
+
+    double resCPX = 0;
+    IloCplex cplex(model);
+    // cplex.setOut(env.getNullStream());
+    // cplex.setWarning(env.getNullStream());
+    cplex.solve();
+    if (cplex.getStatus() == IloAlgorithm::Infeasible) {
+        env.out() << "Pas de solution" << endl;
+    } else {
+        int min = cplex.getObjValue();
+        cout << "min: " << min << endl;
+    }
+
 }

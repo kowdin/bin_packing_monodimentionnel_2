@@ -13,6 +13,7 @@ class Instance {
         int bestFit();
         double relaxLag(int nBoite, std::vector<double>& mult, std::vector<double>& gradLG);
         int nObj();
+        void resoudreCPLEX();
 
     private:
         int _tailleBin;
