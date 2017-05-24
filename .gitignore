@@ -1,1 +1,2 @@
 test_cplex/bp
+test_cplex/*.o
