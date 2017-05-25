@@ -34,6 +34,9 @@ class Knapsack_solver:
     # résolution du problème avec comme valeurs la liste val
     def resoudre(self, val):
 
+        # print("probleme de sac à dos: ")
+        # self.afficher()
+
         # valeur de la solution (partielle)
         self.solution = 0.
 
@@ -60,8 +63,6 @@ class Knapsack_solver:
 
         while continuer:
 
-            # print("ind: ", self.ind)
-
             # relaxation linéaire du sous-problème
             (relax, opt) = self.relaxation_lineaire()
             relax += self.solution
@@ -79,6 +80,14 @@ class Knapsack_solver:
                     # print("exploration")
                     self.exploration()
 
+                    # out = str()
+                    # for i in range(0, self.ind):
+                    #     if(self.affect[i]):
+                    #         out += "1 "
+                    #     else:
+                    #         out += "0 "
+                    # print(out)
+
                     # mise à jour de la meilleure solution
                     if self.solution > meilleure_sol:
                         meilleure_sol = self.solution
@@ -87,6 +96,7 @@ class Knapsack_solver:
 
             # backtracking
             if self.ind >= 1:
+                # print("backtracking")
                 self.backtracking()
 
             if self.ind <= 0:
@@ -133,12 +143,11 @@ class Knapsack_solver:
     def relaxation_lineaire(self):
 
         res = 0.
-        continuer = True
         ind = self.ind
+        continuer = (ind < 10)
         capa = self.capacite
 
         opt = True
-
 
         i = 0
         for elt in self.sol_relax:
