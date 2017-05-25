@@ -3,8 +3,7 @@ from heuristique import best_fit
 
 def relax_lagrange(instance):
 # variables
-	date = 0
-
+	#variable de traitement et de retour
 	p = 0 #variable de traitement, parcour des objets
 	b = 0 #variable de traitement, parcour des bin
 	acc = 0 #variable de traitement
@@ -16,6 +15,7 @@ def relax_lagrange(instance):
 	mubest = list() #variable de retour
 	gammabest = list() #variable de retour
 
+	#variable de solution et d'instance
 	n = 0 #nombre d'objet a placer
 	for i in range(0,instance.nb_obj_diff):
 		n += instance.obj_nb[i]
@@ -28,23 +28,23 @@ def relax_lagrange(instance):
 			s[acc] = instance.obj_taille[i]
 			acc +=1
 	u = [0] * m #vecteur d'ouverture des bin
-	#pour les instances de taille moyenne : mu = 0.1, gamma = 0.1, epsilon_nu_mu = 0.12, epsilon_nu_mu = 0.15, arret a 10**-4 pour les 2, avec les reglages c
+
+	#parametre de calcul
 	mu = [0.1] * m #coeficient de lagrange de la contrainte de capacite
 	gamma = [0.1] * n #coeficient de lagrange de la contrainte tout objet
-	nu_mu = 0.001 #taille initiale du pas de mu (pour b sinon calculé)
-	nu_gamma = 10 #taille initiale du pas de gamma (pour b sinon calculé)
+	nu_mu = 1.0 #taille du pas de mu (valeur initiale pour decalration)
+	nu_gamma = 1.0 #taille du pas de gamma (valeur initiale pour decalration)
+	omega = best_fit(instance) #cible
+	omega_barre = instance.relaxation_lineaire() #valeur don on dispose actuellement
+	rho_nu_mu = 0.9 #facteur entre 2 epsilon_nu_mu
+	rho_nu_gamma = 0.9 #facteur entre 2 epsilon_nu_gamma
+	tmax_nu_mu = 20 #nombre de tour sans amelioration entre 2 reduction de epsilon_nu_mu
+	tmax_nu_gamma = 20 #nombre de tour sans amelioration entre 2 reduction de epsilon_nu_gamma
+	t_nu_mu = tmax_nu_mu #nombre de tour avant la prochaine reduction de epsilon_nu_mu
+	t_nu_gamma = tmax_nu_gamma #nombre de tour avant la prochaine reduction de epsilon_nu_gamma
+	epsilon_nu_mu = 0.3 #facteur de reglage de la taille des pas de mu
+	epsilon_nu_gamma = 0.4 #facteur de reglage de la taille des pas de gamma
 
-	#pour le choix de pas b
-	#rho_nu_mu = 0.9 #facteur entre 2 taille de pas de mu
-	#rho_nu_gamma = 0.9 #facteur entre 2 taille de pas de gamma
-	#tmax_nu_mu = 5 #nombre de tour entre 2 reduction de nu_mu
-	#tmax_nu_gamma = 5 #nombre de tour entre 2 reduction de nu_gamma
-	#t_nu_mu = tmax_nu_mu #nombre de tour avant la prochaine reduction de nu_mu
-	#t_nu_gamma = tmax_nu_gamma #nombre de tour avant la prochaine reduction de nu_gamma
-
-	#pour le choix de pas c
-	epsilon_nu_mu = 0.12 #facteur de reglage de la taille des pas de mu
-	epsilon_nu_gamma = 0.15 #facteur de reglage de la taille des pas de gamma
 #debut
 
 	#si tout les coeficients lagrangiens sont nul alors rien n'est ouvert/assigné
@@ -53,15 +53,26 @@ def relax_lagrange(instance):
 	val = 0
 
 	#calcul de la taille des pas
-	nu_mu = epsilon_nu_mu * (m - val)/calc_nu_mu_acc(n,m,c,s,x)
-	nu_gamma = epsilon_nu_gamma * (m-val)/calc_nu_gamma_acc(n,m,x)
+	acc = calc_nu_mu_acc(n,m,c,s,x)
+	if 0 == acc:
+		nu_mu = 0 #contrainte verifie a l'egalité donc pas de changement nécéssaire
+	else:
+		nu_mu = epsilon_nu_mu * (omega - val)/acc
+	acc = calc_nu_gamma_acc(n,m,x)
+	if 0 == acc:
+		nu_gamma = 0 #contrainte verifie a l'egalité donc pas de changement nécéssaire
+	else:
+		nu_gamma = epsilon_nu_gamma * (omega - val)/acc
 
 	#print("premier reglages : ")
 	#print("nu_mu = "+str(nu_mu))
 	#print("nu_gamma = "+str(nu_gamma))
 
 	#boucle principale de descente de gradient
-	while (nu_mu > 10**-4) or (nu_gamma > 10**-4):
+	#on s'arrete si on a converge sur une au moins aussi bonne valeur que la relaxation lineaire (sinon continuer)
+	#ou si on a montré l'optimalite de notre cible (car solution entiere)
+	#ou si toutes les contraintes liantes sont verifie
+	while ((nu_mu > 10**-4) or (nu_gamma > 10**-4) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu_mu or 0 != nu_gamma):
 		#mise a jour des coeficient de lagrange
 		mu = Majmu(n,m,c,s,x,mu,nu_mu)
 		gamma = Majgamma(n,m,x,gamma,nu_gamma)
@@ -95,19 +106,34 @@ def relax_lagrange(instance):
 			ubest = list(u)
 			mubest = list(mu)
 			gammabest = list(gamma)
-			print(str(best)+" aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+			t_nu_mu = tmax_nu_mu
+			t_nu_gamma = tmax_nu_gamma
 
 		#mise a jour de la taille des pas
-		#if t_nu_mu <= 0:
-		#	nu_mu *= rho_nu_mu
-		#	t_nu_mu = tmax_nu_mu
-		#if t_nu_gamma <= 0:
-		#	nu_gamma *= rho_nu_gamma
-		#	t_nu_gamma = tmax_nu_gamma
-		#t_nu_mu -=1
-		#t_nu_gamma -=1
-		nu_mu = epsilon_nu_mu * (m - val)/calc_nu_mu_acc(n,m,c,s,x)
-		nu_gamma = epsilon_nu_gamma * (m-val)/calc_nu_gamma_acc(n,m,x)
+			#diminution des facteur si pas d'amelioration
+		if t_nu_mu <= 0:
+			epsilon_nu_mu *= rho_nu_mu
+			t_nu_mu = tmax_nu_mu
+		if t_nu_gamma <= 0:
+			epsilon_nu_gamma *= rho_nu_gamma
+			t_nu_gamma = tmax_nu_gamma
+			#augmentation des facteur (comme un warm up) si ils sont trop bas (valeur mise a la valeur utilise sans la reduction)
+		if epsilon_nu_mu < 0.005:
+			epsilon_nu_mu = 0.12
+		if epsilon_nu_gamma < 0.005:
+			epsilon_nu_gamma = 0.15
+		t_nu_mu -=1
+		t_nu_gamma -=1
+		acc = calc_nu_mu_acc(n,m,c,s,x)
+		if 0 == acc:
+			nu_mu = 0 #contrainte verifie a l'egalité donc pas de changement nécéssaire
+		else:
+			nu_mu = epsilon_nu_mu * (omega - val)/acc
+		acc = calc_nu_gamma_acc(n,m,x)
+		if 0 == acc:
+			nu_gamma = 0 #contrainte verifie a l'egalité donc pas de changement nécéssaire
+		else:
+			nu_gamma = epsilon_nu_gamma * (omega - val)/acc
 
 		#print("nu_mu = "+str(nu_mu))
 		#print("nu_gamma = "+str(nu_gamma))
@@ -119,8 +145,6 @@ def relax_lagrange(instance):
 		#for p in range(0,n):
 		#	print(x[p])
 		#print("\n")
-		date +=1
-		print(date)
 
 #fin
 	return (best,xbest,ubest,mubest,gammabest)
