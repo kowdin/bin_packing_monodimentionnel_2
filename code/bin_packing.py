@@ -6,21 +6,21 @@ from lagrange import relax_lagrange
 
 from random import randint
 
-<<<<<<< HEAD
+
 from lagrange_kp import relax_lagrange_kp
 
-#inst = Instance("../Instances/c150/Falkenauer_u120_00.txt")
+# inst = Instance("../Instances/c150/Falkenauer_u120_00.txt")
 #inst = Instance("../Instances/c1000/Falkenauer_t120_03.txt")
-inst = Instance("jouet2.txt")
-=======
+inst = Instance("jouet.txt")
+
 #inst = Instance("../Instances/c150/Falkenauer_u500_00.txt")
-inst = Instance("../Instances/c1000/Falkenauer_t249_00.txt")
+#inst = Instance("../Instances/c1000/Falkenauer_t249_00.txt")
 #inst = Instance("jouet.txt")
->>>>>>> 59f546896144f4d7e257302a63f9c9e4baeeb5ce
+
 #inst.afficher()
 
-# print("L'heuristique best fit donne : " + str(best_fit(inst)))
-# print("La relaxation lineaire donne : " + str(inst.relaxation_lineaire()) )
+print("L'heuristique best fit donne : " + str(best_fit(inst)))
+print("La relaxation lineaire donne : " + str(inst.relaxation_lineaire()) )
 # (val,x,u,mu,gamma) = relax_lagrange(inst)
 # print("La relaxation lagrangienne donne : " + str(val))
 #print("\touverture : "+str(u))
@@ -30,10 +30,10 @@ inst = Instance("../Instances/c1000/Falkenauer_t249_00.txt")
 #   for _ in range(0, inst.obj_nb[p]):
 #       print("\t\t"+str(x[acc]))
 #       acc +=1
-<<<<<<< HEAD
+
 
 relax_lagrange_kp(inst)
-=======
+
 #print("\tmu : "+str(mu))
 #print("\tgamma : "+str(gamma))
 # kp_solver = Knapsack_solver(inst)
@@ -43,4 +43,3 @@ relax_lagrange_kp(inst)
 #val = [inst.nb_obj_tot-x for x in range(0,inst.nb_obj_tot)]
 
 #kp_solver.resoudre(val)
->>>>>>> 59f546896144f4d7e257302a63f9c9e4baeeb5ce
