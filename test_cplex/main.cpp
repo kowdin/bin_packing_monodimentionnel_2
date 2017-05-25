@@ -14,19 +14,21 @@ int main() {
     // instance.charger("Falkenauer_u500_09.txt");
     instance.charger("jouet2.txt");
 
-
     // génération d'un vecteur de multiplicateurs
     int nBoite = instance.bestFit();
 
     cout << "bestFit: " << nBoite << endl;
 
-    vector<double> mult(instance.nObj(), 30.);
-    for(int i = 0; i < mult.size(); i++) {
+    // instance.resoudreCPLEX();
+
+    vector<double> mult(instance.nObj(), 0.24);
+    /*for(int i = 0; i < mult.size(); i++) {
         mult.at(i) = mult.size()-i;
-    }
+    }*/
     vector<double> grad(instance.nObj(), 0);
 
     cout << "relaxation lagrangienne: " << instance.relaxLag(nBoite, mult, grad) << endl;
+    cout << "grad: " << grad.at(0) << endl;
 
     /*double pas = 0.000000005;
     double rho = 0.00001;
