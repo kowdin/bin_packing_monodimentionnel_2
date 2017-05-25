@@ -102,6 +102,8 @@ class Knapsack_solver:
             if self.ind <= 0:
                 continuer = False
 
+        # self.afficher()
+
         return (meilleure_sol, self.sol_var)
 
     # backtracking dans l'arbre de branch and bound
@@ -112,9 +114,9 @@ class Knapsack_solver:
 
         while continuer:
             # si la dernière variables affectée à 1 est trouvée, elle est affectée à 0
-            if self.affect[self.ind-1]:
+            if self.affect[self.ind_ord[self.ind-1]]:
                 continuer = False
-                self.affect[self.ind-1] = False
+                self.affect[self.ind_ord[self.ind-1]] = False
                 self.capacite += self.poids[self.ind_ord[self.ind-1]]
                 self.solution -= self.valeurs[self.ind_ord[self.ind-1]]
             else:
@@ -133,9 +135,11 @@ class Knapsack_solver:
 
             # l'objet est ajouté si il rentre
             if self.poids[self.ind_ord[self.ind]] <= self.capacite:
-                self.affect[self.ind] = True
+                self.affect[self.ind_ord[self.ind]] = True
                 self.capacite -= self.poids[self.ind_ord[self.ind]]
                 self.solution += self.valeurs[self.ind_ord[self.ind]]
+            else:
+                self.affect[self.ind_ord[self.ind]] = False
 
             self.ind += 1
 
@@ -152,7 +156,7 @@ class Knapsack_solver:
         i = 0
         for elt in self.sol_relax:
             if i < ind:
-                elt = self.affect[i]
+                elt = self.affect[self.ind_ord[i]]
             else:
                 elt = False
             i += 1
@@ -164,7 +168,7 @@ class Knapsack_solver:
             if self.poids[self.ind_ord[ind]] <= capa:
                 capa -= self.poids[self.ind_ord[ind]]
                 res += self.valeurs[self.ind_ord[ind]]
-                self.sol_relax[ind] = True
+                self.sol_relax[self.ind_ord[ind]] = True
                 ind += 1
 
                 # si le sac est remplie, la relaxation est terminée (et optimale)
