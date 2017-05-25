@@ -30,8 +30,8 @@ def relax_lagrange(instance):
 	u = [0] * m #vecteur d'ouverture des bin
 
 	#parametre de calcul
-	mu = [0.1] * m #coeficient de lagrange de la contrainte de capacite
-	gamma = [0.1] * n #coeficient de lagrange de la contrainte tout objet
+	mu = [1] * m #coeficient de lagrange de la contrainte de capacite
+	gamma = [1] * n #coeficient de lagrange de la contrainte tout objet
 	nu_mu = 1.0 #taille du pas de mu (valeur initiale pour decalration)
 	nu_gamma = 1.0 #taille du pas de gamma (valeur initiale pour decalration)
 	omega = best_fit(instance) #cible
@@ -42,8 +42,8 @@ def relax_lagrange(instance):
 	tmax_nu_gamma = 20 #nombre de tour sans amelioration entre 2 reduction de epsilon_nu_gamma
 	t_nu_mu = tmax_nu_mu #nombre de tour avant la prochaine reduction de epsilon_nu_mu
 	t_nu_gamma = tmax_nu_gamma #nombre de tour avant la prochaine reduction de epsilon_nu_gamma
-	epsilon_nu_mu = 0.3 #facteur de reglage de la taille des pas de mu
-	epsilon_nu_gamma = 0.4 #facteur de reglage de la taille des pas de gamma
+	epsilon_nu_mu = 1.5 #facteur de reglage de la taille des pas de mu
+	epsilon_nu_gamma = 1.5 #facteur de reglage de la taille des pas de gamma
 
 #debut
 
@@ -53,16 +53,14 @@ def relax_lagrange(instance):
 	val = 0
 
 	#calcul de la taille des pas
-	acc = calc_nu_mu_acc(n,m,c,s,x)
+	acc = calc_nu_mu_acc(n,m,c,s,x) + calc_nu_gamma_acc(n,m,x)
 	if 0 == acc:
+		nu_gamma = 0 #contrainte verifie a l'egalité donc pas de changement nécéssaire
 		nu_mu = 0 #contrainte verifie a l'egalité donc pas de changement nécéssaire
 	else:
 		nu_mu = epsilon_nu_mu * (omega - val)/acc
-	acc = calc_nu_gamma_acc(n,m,x)
-	if 0 == acc:
-		nu_gamma = 0 #contrainte verifie a l'egalité donc pas de changement nécéssaire
-	else:
 		nu_gamma = epsilon_nu_gamma * (omega - val)/acc
+
 
 	#print("premier reglages : ")
 	#print("nu_mu = "+str(nu_mu))
@@ -72,11 +70,11 @@ def relax_lagrange(instance):
 	#on s'arrete si on a converge sur une au moins aussi bonne valeur que la relaxation lineaire (sinon continuer)
 	#ou si on a montré l'optimalite de notre cible (car solution entiere)
 	#ou si toutes les contraintes liantes sont verifie
-	while ((nu_mu > 10**-4) or (nu_gamma > 10**-4) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu_mu or 0 != nu_gamma):
+	while ((nu_mu > 10**-5) or (nu_gamma > 10**-4) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu_mu or 0 != nu_gamma):
 		#mise a jour des coeficient de lagrange
 		mu = Majmu(n,m,c,s,x,mu,nu_mu)
-		gamma = Majgamma(n,m,x,gamma,nu_gamma)
-
+		#gamma = Majgamma(n,m,x,gamma,nu_gamma)
+		gamma = Majgamma(n,m,x,gamma,nu_mu)
 		#resolution des sous-problèmes
 		for b in range(0,m): #un problème par bin
 			for p in range(b,n): #on commence a b pour implementer la contrainte anti symetrie
@@ -89,12 +87,10 @@ def relax_lagrange(instance):
 				acc += x[p][b]*(mu[b]*s[p] - gamma[p])
 			if (acc < -1): #bin interessant donc on ouvre
 				u[b] = 1
-			else: #il ne l'est pas donc on ne le prend pas (donc par symetrie on ne prend pas les suivants)
-				for tmp in range(b,m):
-					u[tmp] = 0
-					for p in range(tmp,n):
-						x[p][tmp] = 0
-				break #pour une l'autre contraine de symetrie qui conserve l'independance
+			else: #il ne l'est pas donc on ne le prend pas
+				u[b] = 0
+				for p in range(b,n):
+					x[p][b] = 0
 
 		#calcul du score
 		val = score(n, m, s, c, mu, gamma, u, x)
@@ -117,34 +113,33 @@ def relax_lagrange(instance):
 		if t_nu_gamma <= 0:
 			epsilon_nu_gamma *= rho_nu_gamma
 			t_nu_gamma = tmax_nu_gamma
-			#augmentation des facteur (comme un warm up) si ils sont trop bas (valeur mise a la valeur utilise sans la reduction)
-		if epsilon_nu_mu < 0.005:
-			epsilon_nu_mu = 0.12
-		if epsilon_nu_gamma < 0.005:
-			epsilon_nu_gamma = 0.15
+			#augmentation des facteur (comme un warm up) si ils sont trop bas (valeur mise a la valeur maximale)
+		if epsilon_nu_mu < 10**-20:
+			epsilon_nu_mu = 1
+		if epsilon_nu_gamma < 10**-6:
+			epsilon_nu_gamma = 1
 		t_nu_mu -=1
 		t_nu_gamma -=1
-		acc = calc_nu_mu_acc(n,m,c,s,x)
+		acc = calc_nu_mu_acc(n,m,c,s,x) + calc_nu_gamma_acc(n,m,x)
 		if 0 == acc:
+			nu_gamma = 0 #contrainte verifie a l'egalité donc pas de changement nécéssaire
 			nu_mu = 0 #contrainte verifie a l'egalité donc pas de changement nécéssaire
 		else:
 			nu_mu = epsilon_nu_mu * (omega - val)/acc
-		acc = calc_nu_gamma_acc(n,m,x)
-		if 0 == acc:
-			nu_gamma = 0 #contrainte verifie a l'egalité donc pas de changement nécéssaire
-		else:
 			nu_gamma = epsilon_nu_gamma * (omega - val)/acc
 
-		#print("nu_mu = "+str(nu_mu))
-		#print("nu_gamma = "+str(nu_gamma))
-		#print("mu : "+str(mu))
-		#print("gamma : "+str(gamma))
-		#print("val = "+str(val))
+		print("nu_mu = "+str(nu_mu))
+		print("nu_gamma = "+str(nu_gamma))
+		print("epsilon_nu_mu = "+str(epsilon_nu_mu))
+		print("epsilon_nu_gamma = "+str(epsilon_nu_gamma))
+		print("mu : "+str(mu))
+		print("gamma : "+str(gamma))
+		print("val = "+str(val))
 		#print("ouverture : "+str(u))
 		#print("associations : ")
 		#for p in range(0,n):
 		#	print(x[p])
-		#print("\n")
+		print("\n")
 
 #fin
 	return (best,xbest,ubest,mubest,gammabest)
