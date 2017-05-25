@@ -59,6 +59,8 @@ class Knapsack_solver:
         # tri des objets par utilité
         self.ind_ord.sort(key = lambda ind: -self.valeurs[ind]/self.poids[ind])
 
+        self.capacite = self.instance.cap
+
         continuer = True
 
         while continuer:
@@ -68,21 +70,28 @@ class Knapsack_solver:
             relax += self.solution
             # print("relax: ", relax)
 
+            # out = str()
+            # for i in range(0, self.ind):
+            #     if(self.affect[self.ind_ord[i]]):
+            #         out += "1 "
+            #     else:
+            #         out += "0 "
+            # print(out)
+
             # exploration si nécessaire
             if relax > meilleure_sol:
 
-                if opt and relax > meilleure_sol:
+                if opt:
                     meilleure_sol = relax
                     self.sol_var = list(self.sol_relax)
                     # print("amélioration (relax): ", meilleure_sol)
 
-                if not opt:
+                else:
                     # print("exploration")
                     self.exploration()
-
                     # out = str()
                     # for i in range(0, self.ind):
-                    #     if(self.affect[i]):
+                    #     if(self.affect[self.ind_ord[i]]):
                     #         out += "1 "
                     #     else:
                     #         out += "0 "
@@ -93,6 +102,14 @@ class Knapsack_solver:
                         meilleure_sol = self.solution
                         self.sol_var = list(self.affect)
                         # print("amélioration: ", meilleure_sol)
+
+                        # out = str()
+                        # for i in range(0, self.ind):
+                        #     if(self.affect[i]):
+                        #         out += "1 "
+                        #     else:
+                        #         out += "0 "
+                        # print(out)
 
             # backtracking
             if self.ind >= 1:
@@ -114,7 +131,7 @@ class Knapsack_solver:
 
         while continuer:
             # si la dernière variables affectée à 1 est trouvée, elle est affectée à 0
-            if self.affect[self.ind_ord[self.ind-1]]:
+            if self.affect[self.ind_ord[self.ind-1]] == True:
                 continuer = False
                 self.affect[self.ind_ord[self.ind-1]] = False
                 self.capacite += self.poids[self.ind_ord[self.ind-1]]
@@ -122,10 +139,9 @@ class Knapsack_solver:
             else:
                 self.ind -= 1
 
-            # exploration terminée
+            # backtracking terminé
             if self.ind <= 0:
                 continuer = False
-
 
     # exploration dans l'arbre du branch and bound
     def exploration(self):
@@ -143,12 +159,12 @@ class Knapsack_solver:
 
             self.ind += 1
 
-    # relaxation linéaire du sous problèmes commençant à l'indice ind
+    # relaxation linéaire du sous problème commençant à l'indice ind
     def relaxation_lineaire(self):
 
         res = 0.
         ind = self.ind
-        continuer = (ind < 10)
+        continuer = (ind < self.nb_obj)
         capa = self.capacite
 
         opt = True
@@ -172,7 +188,7 @@ class Knapsack_solver:
                 ind += 1
 
                 # si le sac est remplie, la relaxation est terminée (et optimale)
-                if capa <= 10**-6:
+                if capa <= 10**-3:
                     continuer = False
 
             else: # objet ajoutés partiellement

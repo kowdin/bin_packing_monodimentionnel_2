@@ -161,13 +161,28 @@ double Instance::relaxLag(int nBoite, vector<double>& mult, vector<double>& grad
         gradLG.at(i) = 1.-cplex.getValue(_var.at(i))*nBoite;
     }
 
-    /*cout << "valeurs variables cplex: " << endl;
+    cout << "indices variables cplex 1: " << endl;
     for(int i = 0; i < _nbObj; i++) {
-        cout << cplex.getValue(*_var.at(i)) << " ; ";
+        // cout << cplex.getValue(_var.at(i)) << " ; ";
+        if(cplex.getValue(_var.at(i)) >= 0.5) {
+            cout << i << ", ";
+        }
     }
-    cout << endl;*/
+    cout << endl;
+    
+    indObj = 0;
+    double res = 0;
+    for(int i = 0; i < _obj.size(); i++) {
+        for(int j = 0; j < _occObj.at(i); j++) {
+            if(cplex.getValue(_var.at(indObj)) >= 0.5) {
+                res += _obj.at(i);
+            }
+            indObj ++;
+        }
+    }
+    cout << "capa final: " << res << " <= " << _tailleBin << endl;
 
-    // cout << "resCPX: " << resCPX << endl;
+    cout << "resCPX: " << resCPX << endl;
 
     if(resCPX >= 1.) {
         return sumLambda+(1.-resCPX)*nBoite;
