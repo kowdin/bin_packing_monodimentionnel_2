@@ -129,6 +129,20 @@ double Instance::relaxLag(int nBoite, vector<double>& mult, vector<double>& grad
     }
     model.add(sumCt <= _tailleBin);
 
+    // cout << "affichage: " << endl;
+    // // affichage du problème de sac à dos
+    // for(int i = 0; i < _nbObj; i++) {
+    //     cout << mult.at(i) << ", ";
+    // }
+    // cout << endl;
+    // for(int i = 0; i < _obj.size(); i++) {
+    //     for(int j = 0; j < _occObj.at(i); j++) {
+    //         cout << _obj.at(i) << ", ";
+    //     }
+    // }
+    // cout << endl;
+    // cout << _tailleBin << endl;
+
     // résolution
     double resCPX = 0;
     IloCplex cplex(model);
@@ -139,6 +153,7 @@ double Instance::relaxLag(int nBoite, vector<double>& mult, vector<double>& grad
         env.out() << "Pas de solution" << endl;
     } else {
         resCPX = cplex.getObjValue();
+        cout << "res knapsack: " << resCPX << endl;
     }
 
     // calcul du gradient lagrangien
