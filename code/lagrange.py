@@ -3,12 +3,18 @@ from heuristique import best_fit
 
 def relax_lagrange(instance):
 # variables
+	date = 0
+
 	p = 0 #variable de traitement, parcour des objets
 	b = 0 #variable de traitement, parcour des bin
 	acc = 0 #variable de traitement
 	tmp = 0 #variable de traitement
 	val = 0 #variable de traitement
 	best  = -1000 #variable de retour
+	xbest = list() #variable de retour
+	ubest = list() #variable de retour
+	mubest = list() #variable de retour
+	gammabest = list() #variable de retour
 
 	n = 0 #nombre d'objet a placer
 	for i in range(0,instance.nb_obj_diff):
@@ -18,14 +24,15 @@ def relax_lagrange(instance):
 	x = [[0] * m for _ in range(n)] #matrice d'association objet/bin
 	s = [0] * n #poid/taille des objets
 	for i in range(0, instance.nb_obj_diff):
-		for j in range(0, instance.obj_nb[i]):
+		for _ in range(0, instance.obj_nb[i]):
 			s[acc] = instance.obj_taille[i]
 			acc +=1
 	u = [0] * m #vecteur d'ouverture des bin
+	#pour les instances de taille moyenne : mu = 0.1, gamma = 0.1, epsilon_nu_mu = 0.12, epsilon_nu_mu = 0.15, arret a 10**-4 pour les 2, avec les reglages c
 	mu = [0.1] * m #coeficient de lagrange de la contrainte de capacite
 	gamma = [0.1] * n #coeficient de lagrange de la contrainte tout objet
-	nu_mu = 0.001 #taille initiale du pas de mu (pour b sinon calcule)
-	nu_gamma = 10 #taille initiale du pas de gamma (pour b sinon calcule)
+	nu_mu = 0.001 #taille initiale du pas de mu (pour b sinon calculé)
+	nu_gamma = 10 #taille initiale du pas de gamma (pour b sinon calculé)
 
 	#pour le choix de pas b
 	#rho_nu_mu = 0.9 #facteur entre 2 taille de pas de mu
@@ -46,75 +53,49 @@ def relax_lagrange(instance):
 	val = 0
 
 	#calcul de la taille des pas
-	acc = 0
-	for b in range(0,m):
-		tmp = c
-		for p in range(0,n):
-			tmp -= s[p]*x[p][b]
-		acc += tmp*tmp
-	nu_mu = epsilon_nu_mu * (m - val)/acc
-
-	acc = 0
-	for p in range(0,n):
-		tmp = 1
-		for b in range(0,m):
-			tmp -= x[p][b]
-		acc += tmp*tmp
-	nu_gamma = epsilon_nu_gamma * (m-val)/acc
-
-	#calcul des coeficient de lagrange
-	for b in range(0,m):
-		acc = -c
-		for p in range(0,n):
-			acc += s[p]*x[p][b]
-		mu[b] = maxOftwo(mu[b] + nu_mu*acc, 0)
-
-	for p in range(0,n):
-		acc = 1
-		for b in range(0,m):
-			acc -= x[p][b]
-		gamma[p] = gamma[p] - nu_gamma*acc
+	nu_mu = epsilon_nu_mu * (m - val)/calc_nu_mu_acc(n,m,c,s,x)
+	nu_gamma = epsilon_nu_gamma * (m-val)/calc_nu_gamma_acc(n,m,x)
 
 	#print("premier reglages : ")
 	#print("nu_mu = "+str(nu_mu))
 	#print("nu_gamma = "+str(nu_gamma))
-	#print("mu : "+str(mu))
-	#print("gamma : "+str(gamma)+"\n")
 
 	#boucle principale de descente de gradient
 	while (nu_mu > 10**-4) or (nu_gamma > 10**-4):
+		#mise a jour des coeficient de lagrange
+		mu = Majmu(n,m,c,s,x,mu,nu_mu)
+		gamma = Majgamma(n,m,x,gamma,nu_gamma)
+
 		#resolution des sous-problèmes
 		for b in range(0,m): #un problème par bin
 			for p in range(b,n): #on commence a b pour implementer la contrainte anti symetrie
-				if (mu[b]*s[p]-gamma[p] < 0):
+				if (mu[b]*s[p]-gamma[p] < 0): #test si cet objet est interessant pour ce bin
 					x[p][b] = 1
 				else:
 					x[p][b] = 0
 			acc = 0
-			for p in range(b,n):
+			for p in range(b,n): #calcul de la valeur des objets interessant pour ce bin
 				acc += x[p][b]*(mu[b]*s[p] - gamma[p])
-			if (acc < -1):
+			if (acc < -1): #bin interessant donc on ouvre
 				u[b] = 1
-			else:
+			else: #il ne l'est pas donc on ne le prend pas (donc par symetrie on ne prend pas les suivants)
 				for tmp in range(b,m):
 					u[tmp] = 0
-					for p in range(0,n):
+					for p in range(tmp,n):
 						x[p][tmp] = 0
 				break #pour une l'autre contraine de symetrie qui conserve l'independance
 
 		#calcul du score
-		acc = 0
-		for p in range(0, n):
-			acc += gamma[p]
-			for b in range(0,m):
-				acc += x[p][b]*(mu[b]*s[p] - gamma[p])
-		for b in range(0,m):
-			acc += u[b] - mu[b]*c
-		val = acc #valeur de la fonction objectif
+		val = score(n, m, s, c, mu, gamma, u, x)
 
+		#sauvegarde de la meilleure relaxation trouvée
 		if val > best:
 			best = val
-			#print(best)
+			xbest = list(x)
+			ubest = list(u)
+			mubest = list(mu)
+			gammabest = list(gamma)
+			print(str(best)+" aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
 		#mise a jour de la taille des pas
 		#if t_nu_mu <= 0:
@@ -125,35 +106,8 @@ def relax_lagrange(instance):
 		#	t_nu_gamma = tmax_nu_gamma
 		#t_nu_mu -=1
 		#t_nu_gamma -=1
-		acc = 0
-		for b in range(0,m):
-			tmp = c
-			for p in range(0,n):
-				tmp -= s[p]*x[p][b]
-			acc += tmp*tmp
-		nu_mu = epsilon_nu_mu * (m - val)/acc
-
-		acc = 0
-		for p in range(0,n):
-			tmp = 1
-			for b in range(0,m):
-				tmp -= x[p][b]
-			acc += tmp*tmp
-		nu_gamma = epsilon_nu_gamma * (m-val)/acc
-
-
-		#mise a jour des coeficient de lagrange
-		for b in range(0,m):
-			acc = -c
-			for p in range(0,n):
-				acc += s[p]*x[p][b]
-			mu[b] = maxOftwo(mu[b] + nu_mu*acc, 0)
-
-		for p in range(0,n):
-			acc = 1
-			for b in range(0,m):
-				acc -= x[p][b]
-			gamma[p] = gamma[p] + nu_gamma*acc
+		nu_mu = epsilon_nu_mu * (m - val)/calc_nu_mu_acc(n,m,c,s,x)
+		nu_gamma = epsilon_nu_gamma * (m-val)/calc_nu_gamma_acc(n,m,x)
 
 		#print("nu_mu = "+str(nu_mu))
 		#print("nu_gamma = "+str(nu_gamma))
@@ -165,20 +119,11 @@ def relax_lagrange(instance):
 		#for p in range(0,n):
 		#	print(x[p])
 		#print("\n")
+		date +=1
+		print(date)
 
 #fin
-#calcul du score
-	acc = 0
-	for p in range(0, n):
-		acc += gamma[p]
-		for b in range(0,m):
-			acc += x[i][j]*(mu[b]*s[p] - gamma[p])
-		for b in range(0,m):
-			acc += u[b] - mu[b]*c
-	if acc > best:
-		return acc
-	else:
-		return best
+	return (best,xbest,ubest,mubest,gammabest)
 
 
 
@@ -188,3 +133,53 @@ def maxOftwo(a,b):
 		return a
 	else:
 		return b
+
+def minOftwo(a,b):
+	if a < b:
+		return a
+	else:
+		return b
+
+def score(n, m, s, c, mu, gamma, u, x):
+	acc = 0
+	for p in range(0, n):
+		acc += gamma[p]
+		for b in range(0,minOftwo(p+1,m)):
+			acc += x[p][b]*(mu[b]*s[p] - gamma[p])
+	for b in range(0,m):
+		acc += u[b] - mu[b]*c
+	return acc
+
+def calc_nu_mu_acc(n,m,c,s,x):
+	acc = 0
+	for b in range(0,m):
+		tmp = c
+		for p in range(b,n):
+			tmp -= s[p]*x[p][b]
+		acc += tmp*tmp
+	return acc
+
+def calc_nu_gamma_acc(n,m,x):
+	acc = 0
+	for p in range(0,n):
+		tmp = 1
+		for b in range(0,minOftwo(p+1,m)):
+			tmp -= x[p][b]
+		acc += tmp*tmp
+	return acc
+
+def Majmu(n,m,c,s,x,mu,nu_mu):
+	for b in range(0,m):
+		acc = -c
+		for p in range(b,n):
+			acc += s[p]*x[p][b]
+		mu[b] = maxOftwo(mu[b] + nu_mu*acc, 0)
+	return mu
+
+def Majgamma(n,m,x,gamma,nu_gamma):
+	for p in range(0,n):
+		acc = 1
+		for b in range(0,minOftwo(p+1,m)):
+			acc -= x[p][b]
+		gamma[p] = gamma[p] + nu_gamma*acc
+	return gamma
