@@ -180,16 +180,16 @@ void Instance::resoudreCPLEX() {
 
     IloEnv env;
     IloModel model(env);
-    vector<IloBoolVar*> _var(_nbObj, nullptr);
 
     int nBoite = bestFit();
+    cout << "bestFit: " << nBoite << endl;
 
     // variables
-    vector<IloBoolVar> _varBins(nBoite);
+    vector<IloBoolVar> varBins(nBoite);
     vector<vector<IloBoolVar> > x(_nbObj, vector<IloBoolVar>(nBoite));
 
     for(int i = 0; i < nBoite; i++) {
-        _varBins.at(i) = IloBoolVar(env);
+        varBins.at(i) = IloBoolVar(env);
     }
     for(int i = 0; i < _nbObj; i++) {
         for(int j = 0; j < nBoite; j++) {
@@ -200,7 +200,7 @@ void Instance::resoudreCPLEX() {
     // fonction objectif
     IloExpr sumObj(env);
     for(int i = 0; i < nBoite; i++) {
-        sumObj += _varBins.at(i);
+        sumObj += varBins.at(i);
     }
     model.add(IloMinimize(env, sumObj));
 
@@ -225,19 +225,42 @@ void Instance::resoudreCPLEX() {
                 indObj ++;
             }
         }
-        model.add(cont <= _varBins.at(i)*_tailleBin);
+        model.add(cont <= varBins.at(i)*_tailleBin);
     }
 
     double resCPX = 0;
     IloCplex cplex(model);
-    // cplex.setOut(env.getNullStream());
-    // cplex.setWarning(env.getNullStream());
+    cplex.setOut(env.getNullStream());
+    cplex.setWarning(env.getNullStream());
     cplex.solve();
     if (cplex.getStatus() == IloAlgorithm::Infeasible) {
         env.out() << "Pas de solution" << endl;
     } else {
         int min = cplex.getObjValue();
         cout << "min: " << min << endl;
+
+        for(int j = 0; j < nBoite; j++) {
+
+            cout << "bin " << j << ": " << endl;
+
+            int indObj = 0;
+            for(int i = 0; i < _obj.size(); i++) {
+
+                for(int k = 0; k < _occObj.at(i); k++) {
+
+                    if(cplex.getValue(x.at(indObj).at(j) >= 0.5)) {
+                        cout << indObj << ":" << _obj.at(i) << ", ";
+                    }
+                    indObj ++;
+
+                }
+
+
+            }
+            cout << endl << endl;
+
+        }
+
     }
 
 }
