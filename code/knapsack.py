@@ -60,7 +60,7 @@ class Knapsack_solver:
 
         while continuer:
 
-            # print("ind: ", self.ind)
+            print("ind: ", self.ind)
 
             # relaxation linéaire du sous-problème
             (relax, opt) = self.relaxation_lineaire()

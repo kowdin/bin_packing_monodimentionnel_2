@@ -128,18 +128,18 @@ def relax_lagrange(instance):
 			nu_mu = epsilon_nu_mu * (omega - val)/acc
 			nu_gamma = epsilon_nu_gamma * (omega - val)/acc
 
-		print("nu_mu = "+str(nu_mu))
-		print("nu_gamma = "+str(nu_gamma))
-		print("epsilon_nu_mu = "+str(epsilon_nu_mu))
-		print("epsilon_nu_gamma = "+str(epsilon_nu_gamma))
-		print("mu : "+str(mu))
-		print("gamma : "+str(gamma))
-		print("val = "+str(val))
+		#print("nu_mu = "+str(nu_mu))
+		#print("nu_gamma = "+str(nu_gamma))
+		#print("epsilon_nu_mu = "+str(epsilon_nu_mu))
+		#print("epsilon_nu_gamma = "+str(epsilon_nu_gamma))
+		#print("mu : "+str(mu))
+		#print("gamma : "+str(gamma))
+		#print("val = "+str(val))
 		#print("ouverture : "+str(u))
 		#print("associations : ")
 		#for p in range(0,n):
 		#	print(x[p])
-		print("\n")
+		#print("\n")
 
 #fin
 	return (best,xbest,ubest,mubest,gammabest)
