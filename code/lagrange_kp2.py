@@ -36,9 +36,9 @@ def relax_lagrange_kp(instance):
     nu = 1.0 #taille du pas de mu (valeur initiale pour decalration)
     omega = best_fit(instance) #cible
     omega_barre = instance.relaxation_lineaire() #valeur don on dispose actuellement
-    epsilon = 0.12 #facteur de reglage de la taille des pas
-    rho = 0.9 #facteur entre 2 epsilon
-    tmax = 20 #nombre de tour sans amelioration entre 2 reduction de epsilon
+    epsilon = 0.3 #facteur de reglage de la taille des pas
+    rho = 0.95 #facteur entre 2 epsilon
+    tmax = 25 #nombre de tour sans amelioration entre 2 reduction de epsilon
     t = tmax #temps avant la prochaine diminution de epsilon
     no_improve = 0 #nombre de tour depuis la derniere amelioration
     max_no_improve = 1000 #nombre maximal d'iteration sans amelioration
@@ -65,7 +65,7 @@ def relax_lagrange_kp(instance):
     #ou si on montre l'optimalite de notre solution construite
     #ou si les contraintes liantes sont toutes verifie
     #ou si on n'a pas amelioré depuis longtemps
-    while ((nu > 10**-3) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu) and (no_improve < max_no_improve):
+    while ((nu > 10**-10) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu) and (no_improve < max_no_improve):
         #mise a jour des coeficient de lagrange
         mu = Majmu(n,m,x,mu,nu)
 
@@ -95,8 +95,8 @@ def relax_lagrange_kp(instance):
             t = tmax
         t -=1
             #augmentation des facteur (comme un warm up) si ils sont trop bas (valeur mise a la valeur maximale)
-        if epsilon < 10**-5:
-            epsilon = 1
+        if epsilon < 10**-2:
+            epsilon = 0.2
             #calcul des pas en fonction des facteur precedent
         acc = calc_nu_acc(n,m,x)
         if 0 == acc:
@@ -113,7 +113,7 @@ def relax_lagrange_kp(instance):
         print("\n")
 
 #fin
-    print(str(((nu > 10**-3) or (val < omega_barre-1)))+" ; "+str((omega - val >= 1))+" ; "+str(0 != nu)+" ; "+str(no_improve < max_no_improve))
+    print(str(((nu > 10**-5) or (val < omega_barre-1)))+" ; "+str((omega - val >= 1))+" ; "+str(0 != nu)+" ; "+str(no_improve < max_no_improve))
     return (best,xbest,ubest,mubest)
 
 
