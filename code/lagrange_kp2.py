@@ -32,14 +32,16 @@ def relax_lagrange_kp(instance):
     val = 0 #valeur actuel de la fonction  objectif
 
     #parametre de calcul
-    mu = [0.001] * n #coeficient de lagrange de la contrainte dualise
+    mu = [0.1] * n #coeficient de lagrange de la contrainte dualise
     nu = 1.0 #taille du pas de mu (valeur initiale pour decalration)
     omega = best_fit(instance) #cible
     omega_barre = instance.relaxation_lineaire() #valeur don on dispose actuellement
     epsilon = 0.12 #facteur de reglage de la taille des pas
     rho = 0.9 #facteur entre 2 epsilon
-    tmax = 40 #nombre de tour sans amelioration entre 2 reduction de epsilon
-    t = tmax #nombre de tour avant la prochaine reduction de epsilon
+    tmax = 20 #nombre de tour sans amelioration entre 2 reduction de epsilon
+    t = tmax #temps avant la prochaine diminution de epsilon
+    no_improve = 0 #nombre de tour depuis la derniere amelioration
+    max_no_improve = 1000 #nombre maximal d'iteration sans amelioration
 
 #debut
 
@@ -59,7 +61,11 @@ def relax_lagrange_kp(instance):
     else:
         nu = epsilon * (omega - val)/acc
 
-    while ((nu > 10**-5) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu):
+    #on peut s'arreter si on a convergé fortement vers un meilleur resultat que la relaxation lineaire
+    #ou si on montre l'optimalite de notre solution construite
+    #ou si les contraintes liantes sont toutes verifie
+    #ou si on n'a pas amelioré depuis longtemps
+    while ((nu > 10**-3) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu) and (no_improve < max_no_improve):
         #mise a jour des coeficient de lagrange
         mu = Majmu(n,m,x,mu,nu)
 
@@ -79,10 +85,12 @@ def relax_lagrange_kp(instance):
             ubest = (kp_val > 1)
             mubest = list(mu)
             t = tmax
+            no_improve = 0
+        no_improve +=1
 
         #mise a jour de la taille des pas
             #diminution des facteur si pas d'amelioration
-        if t<= 0:
+        if t<0:
             epsilon *= rho
             t = tmax
         t -=1
@@ -105,6 +113,7 @@ def relax_lagrange_kp(instance):
         print("\n")
 
 #fin
+    print(str(((nu > 10**-3) or (val < omega_barre-1)))+" ; "+str((omega - val >= 1))+" ; "+str(0 != nu)+" ; "+str(no_improve < max_no_improve))
     return (best,xbest,ubest,mubest)
 
 
