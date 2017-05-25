@@ -56,7 +56,7 @@ il ne prend pas en compte la redondance des objets, si on a 100 fois le même ob
 \item
 bien qu'identique de part leur caractéristique tous les bin sont différencié
 \end{itemize}
-Donc il en résultera un nombre considérable de solution équivalente due à des symétries. Un algorithme de résolution devrai donc prendre en compte l’interprétation du problème ou y ajouter des contraintes comme : 
+Donc il en résultera un nombre considérable de solution équivalente due à des symétries. Un algorithme de résolution devrai donc prendre en compte l’interprétation du problème ou y ajouter des contraintes comme :
 \begin{align*}
  \forall b \in [\![ 1 , n-1 ]\!] : u_b \geqslant u_{b+1} \text{ (3)}\\
  \forall b \in [\![ 1 , n-1 ]\!] : argmin_{ p \in \{ i \in [\![ 1 , n ]\!] | x_{ib} = 1 \} } p \leqslant argmin_{ p \in \{ i \in [\![ 1 , n ]\!] | x_{i,b+1} = 1 \} } p \text{ (4)}
@@ -70,7 +70,7 @@ $\text{(Rl) : min } z_{\text{Rl}} = \sum \limits_{b = 1 }^{n} u_b$\\
 s.c.
 \begin{align*}
  \forall b \in [\![ 1 , n ]\!] : \sum \limits_{p = 1}^{n} s_p x_{pb} \leqslant u_b c \text{ (1)}\\
- \forall p \in [\![ 1 , n ]\!] : \sum \limits_{b = 1}^{n} x_{pb} = 1 \text{ (2)}\\
+ \forall p \in [\![ 1 , n ]\!] : \sum \limits_{b = 1}^{n} x_{pb} = 1 \text{ (2)} \\
  \forall p \in [\![ 1 , n ]\!] : \forall b \in [\![ 1 , n ]\!] : u_b , x_{pb} \in [0,1]
 \end{align*}
 Mais on peut alors toujours dire que la valeur de la relaxation linéaire est $\frac{\sum \limits_{p = 1}^n s_p}{c}$. Sauf que la valeur de (PE) est toujours entière donc on peut utiliser comme borne inférieure $\Bigl\lceil\dfrac{\sum \limits_{p = 1}^n s_p}{c}\Bigr\rceil\qquad$
@@ -124,16 +124,41 @@ En écrivant la fonction objectif comme  $\text{ : min } z_1(u) = \sum \limits_{
 
 \subsection{Dualisation de la contrainte 2}
 
-Si on dualise la contrainte 2, que l'on pourrait appeler "tout objet", on obtient :\\
+Une autre possibilité est de dualiser la contrainte 2) : $\sum_{b=1}^n x_{pb} = 1$. \newline
+
+On obtient alors :\\
 $RL_2(u) \text{ : min } z_2(u) = \sum \limits_{b = 1}^{n} u_b + \sum \limits_{p = 1}^{n} \mu_p (1 - \sum \limits_{b = 1}^{n} x_{pb})$\\
 s.c.
 \begin{align*}
  \forall b \in [\![ 1 , n ]\!] : \sum \limits_{p = 1}^{n} s_p x_{pb} \leqslant u_b c \text{ (1)}\\
  \forall p \in [\![ 1 , n ]\!] : \forall b \in [\![ 1 , n ]\!] : x_{pb}, u_b \in \{0,1\}
 \end{align*}
-Mais vu que la contrainte 2 est une contrainte d'égalité le signe de $\mu$ est libre.
 
-On peut réécrire la fonction objectif comme $\text{min } z_2(u) =  \sum \limits_{b = 1}^{n} \left( u_b - \sum \limits_{p = 1}^{n} \mu_p x_{pb} \right) + \sum \limits_{p = 1}^{n} \mu_p$. De plus si $u_b = 1$ la contrainte (1) est une contrainte de capacité. On peut donc résoudre $RL_2(u)$ en résolvant n problème de knapsack où les objets ont comme valeur $- \mu_p$, puis en mettant le $u_b$ correspondant au problème résolut à 1 si la valeur de la solution optimale est supérieur à $-1$. A noter qu'après avoir résolut nos n 01KP et déterminé la valeur des $u_b$ il faudra y ajouter la somme des $\mu_p$ pour avoir la valeur de la relaxation lagrangienne.
+Etant donné que la contrainte 2 est une contrainte d'égalité le signe des $\mu_i$ est libre.\newline
+
+On peut réécrire la fonction objectif comme $\text{min } z_2(u) =  \sum \limits_{b = 1}^{n} \left( u_b - \sum \limits_{p = 1}^{n} \mu_p x_{pb} \right) + \sum \limits_{p = 1}^{n} \mu_p$.\newline
+
+Le problème est alors décomposable par bin. En effet, le terme de droite est constant et la somme de gauche peut être décomposée par bin. Les variables d'un terme de la somme ne dépendent que d'un seul bin et il y a aussi une unique contrainte par bin. On se retrouve donc avec les $n$ sous problèmes identiques :
+
+\begin{align*}
+    &min \quad z_{2b}(0) = u_b - \sum \limits_{p=1}^n \mu_p*x_{pb}\\
+    &s.c: \sum \limits_{p=1}^n s_p*x_{pb} \leq u_b*c
+\end{align*}
+
+Ce problème peut être décomposé en deux sous problèmes : le problème dans lequel $u_b = 0$ et celui dans lequel $u_b = 1$.\newline
+
+Dans le cas où $u_b = 0$, la contrainte force les variables $x_{pb}$ à être nulles (les $s_p$ étant tous positifs).
+la valeur optimale de la fonction objectif est alors $0$. \newline
+
+Dans le cas où $u_b = 1$ la contrainte (1) devient une contrainte de capacité.
+Le problème peut alors être vu comme un problème de de sac à dos en inversant le signe de la fonction.
+Les objets de ce problème ont pour poids $s_p$ et pour valeurs $\mu_p$. \newline
+
+Enfin, la valeur optimal de ces sous problème peut être trouvée en comparant les résultat obtenus avec le problème de sac à dos et le problème avec $u_b = 0$.
+La valeur optimale du premier sous prpoblème étant $0$, le deuxième donne une meilleure valeur si $u_b - \sum_{p=1}^n \mu_p*x_{pb} < 0$ ou encore $1 < \sum_{p=1}^n \mu_p*x_{pb}$.
+On peut donc résoudre le problème en résolvant le sous-problème de sac à dos et en comparant le résultat avec 1.\newline
+
+On peut ainsi résoudre $RL_2(u)$ en résolvant 1 problème de sac à dos, en multipliant le résultat par $n$ et en ajoutant la somme des $\mu$. 
 
 \section{Python}
 
