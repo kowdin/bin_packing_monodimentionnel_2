@@ -220,7 +220,19 @@ Le calcul du pois de ce pas $\nu = \epsilon . \frac{\omega - val}{||d - Dx(\mu)|
 \item
 Ensuite le pas est $\mu = max(\mu + \nu ( d - Dx(\mu)), 0)$
 \end{enumerate}
-$\epsilon$ est un facteur qui va déterminer la taille du pas, au départ il est fixé à une valeur intermédiaire puis vas être diminué d'un facteur $\rho$ si aucune amélioration n'a été effectué en $t_{max}$ itérations. De plus, dans le cadre de la première relaxation, 
+$\epsilon$ est un facteur qui va déterminer la taille du pas, au départ il est fixé à une valeur intermédiaire puis vas être diminué d'un facteur $\rho$ si aucune amélioration n'a été effectué en $t_{max}$ itérations, avec une ré-augmentation si sa valeur devient vraiment trop faible. De plus, dans le cadre de la première relaxation, on utilise deux $\nu$ et $\epsilon$, un pour chaque type de contraintes. En effet leur nature étant profondément différente les même valeurs ne leurs conviennent pas. Enfin il faut noter que le signe de $\gamma$ est libre donc sa mise a jour ne comprend pas de max.
+\item
+On dispose de plusieurs critère d’arrêt, l'activation de l'un d'entre eux suffit :
+\begin{itemize}
+\item
+$\nu < \nu_{min} \land val > \bar{omega} -1$ où $\nu_{min}$ est un seuil sur $\nu$ et $\bar{\omega}$ la valeur de la relaxation linéaire. Cette formule signifie que l'algorithme a convergé vers une valeur au moins aussi bonne que la relaxation linéaire (la valeur de la relaxation lagrangienne est sensé être au moins aussi bonne).
+\item
+$\omega - val < 1$ qui signifie que la solution construite est optimale
+\item
+$\nu = 0$ qui signifie que les contraintes dualisé sont toutes vérifié
+\item
+$\text{no\_improve} \geqslant \text{max\_no\_improve}$ qui limite le temps de calcul maximal
+\end{itemize}
 \end{itemize}
 
 \section{Python}

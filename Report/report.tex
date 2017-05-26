@@ -90,7 +90,7 @@ s.c.
 Mais on peut alors toujours dire que la valeur de la relaxation linéaire est $\frac{\sum \limits_{p = 1}^n s_p}{c}$. Sauf que la valeur de (PE) est toujours entière donc on peut utiliser comme borne inférieure $\Bigl\lceil\dfrac{\sum \limits_{p = 1}^n s_p}{c}\Bigr\rceil\qquad$
 
 \begin{proof}
-Soit $u^*_b$ et $x^*_{bp}$ la valeur des variables dans la solution optimale de la relaxation linéaire. Alors on a bien évidement $\forall p \in [\![ 1 , n ]\!] : \sum \limits_{b = 1}^{m} x^*_{pb} = 1$ par la contrainte (2). De plus, vu que chaque $u_b$ n’apparais que dans une contrainte, on peut dire que $u^*_b = \frac{\sum \limits_{p=1}^n s_p x^*_{pb}}{c}$ par la contrainte (1). La valeur cette solution est alors $\sum \limits_{b = 1}^m  \frac{\sum \limits_{p=1}^n s_p x^*_{pb}}{c} = \frac{\sum \limits_{p = 1}^n s_p}{c}$ par la contrainte (2).\\
+Soit $u^*_b$ et $x^*_{bp}$ la valeur des variables dans la solution optimale de la relaxation linéaire. Alors on a bien évidement $\forall p \in [\![ 1 , n ]\!] : \sum \limits_{b = 1}^{m} x^*_{pb} = 1$ par la contrainte (2). De plus, vu que chaque $u_b$ n’apparais que dans une contrainte, on peut dire que $u^*_b = \frac{\sum \limits_{p=1}^n s_p x^*_{pb}}{c}$ par la contrainte (1). En effet on est dans un problème de min donc cette contrainte est limitante, par propriété du simplexe elle sera vérifié a l'égalité dans la solution optimale (car elles sont toutes indépendantes). La valeur cette solution est alors $\sum \limits_{b = 1}^m  \frac{\sum \limits_{p=1}^n s_p x^*_{pb}}{c} = \frac{\sum \limits_{p = 1}^n s_p}{c}$ par la contrainte (2).\\
 \end{proof}
 
 \section{Relaxations lagrangiennes possibles}
