@@ -33,15 +33,15 @@ def relax_lagrange_kp(instance):
 
     #parametre de calcul
     mu = [0.1] * n #coeficient de lagrange de la contrainte dualise
-    nu = 1.0 #taille du pas de mu (valeur initiale pour decalration)
-    omega = 51#best_fit(instance) #cible
+    nu = None #taille du pas de mu
+    omega = best_fit(instance) #cible
     omega_barre = instance.relaxation_lineaire() #valeur don on dispose actuellement
     epsilon = 0.3 #facteur de reglage de la taille des pas
     rho = 0.95 #facteur entre 2 epsilon
     tmax = 25 #nombre de tour sans amelioration entre 2 reduction de epsilon
     t = tmax #temps avant la prochaine diminution de epsilon
     no_improve = 0 #nombre de tour depuis la derniere amelioration
-    max_no_improve = 1000 #nombre maximal d'iteration sans amelioration
+    max_no_improve = 500 #nombre maximal d'iteration sans amelioration
 
 #debut
 
@@ -86,7 +86,7 @@ def relax_lagrange_kp(instance):
             mubest = list(mu)
             t = tmax
             no_improve = 0
-            print("best: ", best)
+            #print("best: ", best)
             # print("mu : "+str(mu))
         no_improve +=1
 

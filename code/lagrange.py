@@ -44,6 +44,8 @@ def relax_lagrange(instance):
 	t_nu_gamma = tmax_nu_gamma #nombre de tour avant la prochaine reduction de epsilon_nu_gamma
 	epsilon_nu_mu = 1.5 #facteur de reglage de la taille des pas de mu
 	epsilon_nu_gamma = 1.5 #facteur de reglage de la taille des pas de gamma
+	no_improve = 0 #nombre de tour depuis la derniere amelioration
+	max_no_improve = 1000 #nombre maximal d'iteration sans amelioration
 
 #debut
 
@@ -70,7 +72,7 @@ def relax_lagrange(instance):
 	#on s'arrete si on a converge sur une au moins aussi bonne valeur que la relaxation lineaire (sinon continuer)
 	#ou si on a montré l'optimalite de notre cible (car solution entiere)
 	#ou si toutes les contraintes liantes sont verifie
-	while ((nu_mu > 10**-5) or (nu_gamma > 10**-4) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu_mu or 0 != nu_gamma):
+	while ((nu_mu > 10**-5) or (nu_gamma > 10**-4) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu_mu or 0 != nu_gamma) and (no_improve < max_no_improve):
 		#mise a jour des coeficient de lagrange
 		mu = Majmu(n,m,c,s,x,mu,nu_mu)
 		gamma = Majgamma(n,m,x,gamma,nu_gamma)
@@ -104,7 +106,8 @@ def relax_lagrange(instance):
 			gammabest = list(gamma)
 			t_nu_mu = tmax_nu_mu
 			t_nu_gamma = tmax_nu_gamma
-
+			no_improve = 0
+		no_improve +=1
 		#mise a jour de la taille des pas
 			#diminution des facteur si pas d'amelioration
 		if t_nu_mu <= 0:
@@ -142,6 +145,7 @@ def relax_lagrange(instance):
 		#print("\n")
 
 #fin
+	print(str(((nu_mu > 10**-5) or (nu_gamma > 10**-4) or (val < omega_barre-1)))+" ; "+str((val < omega_barre-1))+" ; "+str(0 != nu_mu or 0 != nu_gamma)+" ; "+str(no_improve < max_no_improve))
 	return (best,xbest,ubest,mubest,gammabest)
 
 
