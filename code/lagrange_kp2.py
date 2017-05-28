@@ -18,7 +18,7 @@ def relax_lagrange_kp(instance):
 
     #variable de solution et d'instance
     n = 0 #nombre d'objet a placer
-    for i in range(0,instance.nb_obj_diff):
+    for i in range(instance.nb_obj_diff):
         n += instance.obj_nb[i]
     m = best_fit(instance) #nombre de bin maximal
     c = instance.cap #taille des bin
@@ -69,7 +69,7 @@ def relax_lagrange_kp(instance):
     #ou si on montre l'optimalite de notre solution construite
     #ou si les contraintes liantes sont toutes verifie
     #ou si on n'a pas amelioré depuis longtemps
-    while ((nu > 10**-10) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu) and (no_improve < max_no_improve) and (time.time()-temps_debut < 5):
+    while ((nu > 10**-10) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu) and (no_improve < max_no_improve) and ( (time.time()-temps_debut) < 20):
         #mise a jour des coeficient de lagrange
         mu = Majmu(n,m,x,mu,nu)
 
@@ -80,7 +80,7 @@ def relax_lagrange_kp(instance):
             val = (1-kp_val)*m + somme_mult
         else:
             val = somme_mult
-            for p in range(0,n): x[p] = False
+            for p in range(n): x[p] = False
 
         #sauvegarde de la meilleure relaxation trouvée
         if val > best:

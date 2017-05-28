@@ -19,6 +19,7 @@ import sys
 
 inst = Instance(sys.argv[1])
 
+
 #inst.afficher()
 
 print("best fit : " + str(best_fit(inst)))
@@ -41,9 +42,16 @@ print("relaxation lineaire : " + str(inst.relaxation_lineaire()) )
 
 
 (val,x,u,mu, temps) = relax_lagrange_kp(inst)
+
 print("relaxation lagrangienne : " + str(math.ceil(val)))
 # print("\touverture : "+str(u))
 # print("\t associations : "+str(x))
 # print("Coeficient lagrangien : "+str(mu))
 
-print("temps : ", temps)
+
+print("temps :", temps)
+
+rep = reparation(inst, u, x, mu)
+print("reconstruction :", len(rep))
+#print("Contenu : ")
+#print(rep)
