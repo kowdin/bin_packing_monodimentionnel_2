@@ -115,7 +115,7 @@ def relax_lagrange_kp(instance):
         # print("\n")
 
 #fin
-    print(str(((nu > 10**-5) or (val < omega_barre-1)))+" ; "+str((omega - val >= 1))+" ; "+str(0 != nu)+" ; "+str(no_improve < max_no_improve))
+    # print(str(((nu > 10**-5) or (val < omega_barre-1)))+" ; "+str((omega - val >= 1))+" ; "+str(0 != nu)+" ; "+str(no_improve < max_no_improve))
     return (best,xbest,ubest,mubest)
 
 
