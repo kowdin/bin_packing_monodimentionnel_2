@@ -16,7 +16,7 @@ def relax_lagrange_kp(instance):
 
     #variable de solution et d'instance
     n = 0 #nombre d'objet a placer
-    for i in range(0,instance.nb_obj_diff):
+    for i in range(instance.nb_obj_diff):
         n += instance.obj_nb[i]
     m = best_fit(instance) #nombre de bin maximal
     c = instance.cap #taille des bin
@@ -76,7 +76,7 @@ def relax_lagrange_kp(instance):
             val = (1-kp_val)*m + somme_mult
         else:
             val = somme_mult
-            for p in range(0,n): x[p] = False
+            for p in range(n): x[p] = False
 
         #sauvegarde de la meilleure relaxation trouvée
         if val > best:

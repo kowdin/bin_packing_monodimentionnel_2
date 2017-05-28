@@ -14,7 +14,7 @@ from lagrange_kp2 import relax_lagrange_kp
 inst = Instance("../Instances/c150/Falkenauer_u120_00.txt")
 #inst = Instance("../Instances/c1000/Falkenauer_t120_03.txt")
 
-# inst = Instance("jouet2.txt")
+#inst = Instance("jouet2.txt")
 
 #inst.afficher()
 
@@ -42,3 +42,9 @@ print("La relaxation lagrangienne 2 donne : " + str(val)+" => "+str(math.ceil(va
 print("\touverture : "+str(u))
 print("\t associations : "+str(x))
 print("Coeficient lagrangien : "+str(mu))
+
+rep = reparation(inst, u, x, mu)
+print("Nombre de bin de la solution réparée : ", len(rep))
+print("Contenu : ")
+print(rep)
+
