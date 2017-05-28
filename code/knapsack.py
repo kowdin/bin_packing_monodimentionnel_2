@@ -119,8 +119,6 @@ class Knapsack_solver:
             if self.ind <= 0:
                 continuer = False
 
-        # self.afficher()
-
         return (meilleure_sol, self.sol_var)
 
     # backtracking dans l'arbre de branch and bound
@@ -169,13 +167,12 @@ class Knapsack_solver:
 
         opt = True
 
-        i = 0
-        for elt in self.sol_relax:
+        # copie de la solution partielle dans la solution de la relaxation
+        for i in range(0, self.nb_obj):
             if i < ind:
-                elt = self.affect[self.ind_ord[i]]
+                self.sol_relax[self.ind_ord[i]] = self.affect[self.ind_ord[i]]
             else:
-                elt = False
-            i += 1
+                self.sol_relax[self.ind_ord[i]] = False
 
         # ajout des objets qui le peuvent dans le sac
         while continuer:

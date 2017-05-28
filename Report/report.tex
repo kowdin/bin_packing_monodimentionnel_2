@@ -129,7 +129,7 @@ Où $\gamma$ est de signe libre car la contrainte associé est une contrainte d'
 Comme précédemment on peut reformuler la fonction objectif comme : \\
 $z_{1',2}(u) = \text{min } \sum \limits_{b = 1}^{m}( u_b + \sum \limits_{p = 1}^n ((\mu_b s_p - \gamma_p) x_{pb})) - \sum \limits_{b = 1}^{m} \mu_b c + \sum \limits_{p = 1}^{n} \gamma_p$\\
 En pratique on remarque qu'il suffit de résoudre $m$ problème indépendants :\\
-$PI_{b}(u) \text{ : } z'_{b}(u) = \text{ min } \sum \limits_{b = 1}^{m}( u_b + \sum \limits_{p = 1}^n (\mu_b s_p x_{pb}))$\\
+$PI_{b}(u) \text{ : } z'_{b}(u) = \text{ min } u_b + \sum \limits_{p = 1}^n ((\mu_b s_p - \gamma_p) x_{pb})$\\
 s.c.
 \begin{align*}
  \forall p \in [\![ 1 , n ]\!] : x_{pb} \leqslant u_b \text{ (1'')}\\
@@ -180,7 +180,7 @@ Le problème peut alors être vu comme un problème de de sac à dos en inversan
 Les objets de ce problème ont pour poids $s_p$ et pour valeurs $\mu_p$. \newline
 
 Enfin, la valeur optimal de ces sous problème peut être trouvée en comparant les résultat obtenus avec le problème de sac à dos et le problème avec $u_b = 0$.
-La valeur optimale du premier sous prpoblème étant $0$, le deuxième donne une meilleure valeur si $u_b - \sum_{p=1}^n \mu_p*x_{pb} < 0$ ou encore $1 < \sum_{p=1}^n \mu_p*x_{pb}$.
+La valeur optimale du premier sous problème étant $0$, le deuxième donne une meilleure valeur si $u_b - \sum_{p=1}^n \mu_p*x_{pb} < 0$ ou encore $1 < \sum_{p=1}^n \mu_p*x_{pb}$.
 On peut donc résoudre le problème en résolvant le sous-problème de sac à dos et en comparant le résultat avec 1.\newline
 
 On peut ainsi résoudre $RL_2(u)$ en résolvant 1 problème de sac à dos, en multipliant le résultat par $m$ et en ajoutant la somme des $\mu$. 

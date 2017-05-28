@@ -13,8 +13,6 @@ def relax_lagrange_kp(instance):
     ubest = False #variable de retour
     mubest = list() #variable de retour
     somme_mult = 0 #somme des coeficient lagrangien
-    acc = 0
-
 
     #variable de solution et d'instance
     n = 0 #nombre d'objet a placer
@@ -22,12 +20,14 @@ def relax_lagrange_kp(instance):
         n += instance.obj_nb[i]
     m = best_fit(instance) #nombre de bin maximal
     c = instance.cap #taille des bin
-    x = [[0] * m for _ in range(n)] #matrice d'association objet/bin
-    s = [0] * n #poid/taille des objets
-    for i in range(0, instance.nb_obj_diff):
-        for _ in range(0, instance.obj_nb[i]):
+    x = [0 for _ in range(n)] #matrice d'association objet/bin
+    s = [0 for _ in range(n)]#poid/taille des objets
+
+    acc = 0
+    for i in range(instance.nb_obj_diff):
+        for _ in range(instance.obj_nb[i]):
             s[acc] = instance.obj_taille[i]
-            acc +=1
+            acc += 1
     u = [0] * m #vecteur d'ouverture des bin
     val = 0 #valeur actuel de la fonction  objectif
 
@@ -76,7 +76,7 @@ def relax_lagrange_kp(instance):
             val = (1-kp_val)*m + somme_mult
         else:
             val = somme_mult
-            for p in range(0,n): x[p] = 0
+            for p in range(0,n): x[p] = False
 
         #sauvegarde de la meilleure relaxation trouvée
         if val > best:
