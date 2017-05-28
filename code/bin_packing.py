@@ -10,9 +10,9 @@ import math
 
 from lagrange_kp2 import relax_lagrange_kp
 
-#inst = Instance("../Instances/c150/Falkenauer_u120_00.txt")
+inst = Instance("../Instances/c150/Falkenauer_u120_00.txt")
 #inst = Instance("../Instances/c1000/Falkenauer_t120_03.txt")
-inst = Instance("jouet.txt")
+# inst = Instance("jouet2.txt")
 #inst.afficher()
 
 print("L'heuristique best fit donne : " + str(best_fit(inst)))
