@@ -4,13 +4,14 @@
 from instance import Instance
 from heuristique import best_fit
 from lagrange import relax_lagrange
+from reparation import *
 
 from random import randint
 import math
 
 from lagrange_kp2 import relax_lagrange_kp
 
-inst = Instance("../Instances/c150/Falkenauer_u250_00.txt")
+inst = Instance("../Instances/c150/Falkenauer_u120_00.txt")
 #inst = Instance("../Instances/c1000/Falkenauer_t120_03.txt")
 #inst = Instance("jouet2.txt")
 #inst.afficher()

@@ -121,6 +121,13 @@ class Knapsack_solver:
 
         # self.afficher()
 
+        print("capacite: ", self.capacite)
+        somme_2 = 0
+        for i in range(1, self.nb_obj):
+            somme_2 += self.poids[self.ind_ord[i]]
+        print("somme poids: ", somme_2)
+        print(self.poids)
+
         return (meilleure_sol, self.sol_var)
 
     # backtracking dans l'arbre de branch and bound
