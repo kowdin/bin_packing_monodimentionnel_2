@@ -69,7 +69,7 @@ def relax_lagrange_kp(instance):
     #ou si on montre l'optimalite de notre solution construite
     #ou si les contraintes liantes sont toutes verifie
     #ou si on n'a pas amelioré depuis longtemps
-    while ((nu > 10**-10) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu) and (no_improve < max_no_improve) and ( (time.time()-temps_debut) < 20):
+    while ((nu > 10**-10) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu) and (no_improve < max_no_improve) and ( (time.time()-temps_debut) < 900):
         #mise a jour des coeficient de lagrange
         mu = Majmu(n,m,x,mu,nu)
 
