@@ -2,6 +2,8 @@ from instance import Instance
 from heuristique import best_fit
 from knapsack import Knapsack_solver
 
+import time
+
 def relax_lagrange_kp(instance):
 #variable
     # sous-problèmes de sac à dos
@@ -61,11 +63,13 @@ def relax_lagrange_kp(instance):
     else:
         nu = epsilon * (omega - val)/acc
 
+    temps_debut = time.time()
+
     #on peut s'arreter si on a convergé fortement vers un meilleur resultat que la relaxation lineaire
     #ou si on montre l'optimalite de notre solution construite
     #ou si les contraintes liantes sont toutes verifie
     #ou si on n'a pas amelioré depuis longtemps
-    while ((nu > 10**-10) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu) and (no_improve < max_no_improve):
+    while ((nu > 10**-10) or (val < omega_barre-1)) and (omega - val >= 1) and (0 != nu) and (no_improve < max_no_improve) and (time.time()-temps_debut < 5):
         #mise a jour des coeficient de lagrange
         mu = Majmu(n,m,x,mu,nu)
 
@@ -116,7 +120,10 @@ def relax_lagrange_kp(instance):
 
 #fin
     # print(str(((nu > 10**-5) or (val < omega_barre-1)))+" ; "+str((omega - val >= 1))+" ; "+str(0 != nu)+" ; "+str(no_improve < max_no_improve))
-    return (best,xbest,ubest,mubest)
+
+    temps_fin = time.time()
+
+    return (best,xbest,ubest,mubest, temps_fin-temps_debut)
 
 
 def maxOftwo(a,b):

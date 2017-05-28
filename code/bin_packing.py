@@ -40,8 +40,10 @@ print("relaxation lineaire : " + str(inst.relaxation_lineaire()) )
 #print("\tgamma : "+str(gamma))
 
 
-(val,x,u,mu) = relax_lagrange_kp(inst)
+(val,x,u,mu, temps) = relax_lagrange_kp(inst)
 print("relaxation lagrangienne : " + str(math.ceil(val)))
 # print("\touverture : "+str(u))
 # print("\t associations : "+str(x))
 # print("Coeficient lagrangien : "+str(mu))
+
+print("temps : ", temps)
