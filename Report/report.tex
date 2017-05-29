@@ -76,46 +76,58 @@ Bien que juste ce programme linéaire n'est pas très utilisable en pratique, en
 Il en résultera un nombre considérable de solutions équivalentes due à des symétries. Un algorithme de résolution devrait donc prendre en compte l’interprétation du problème ou y ajouter des contraintes comme :
 
 \begin{align*}
- \forall b \in [\![ 1 , m-1 ]\!] : u_b \geqslant u_{b+1} \text{ (3)}\\
- \forall b \in [\![ 1 , m-1 ]\!] : argmin_{ p \in \{ i \in [\![ 1 , n ]\!] | x_{ib} = 1 \} } p \leqslant argmin_{ p \in \{ i \in [\![ 1 , n ]\!] | x_{i,b+1} = 1 \} } p \text{ (4)}
+    u_b &\geqslant u_{b+1} \quad \forall b \in \{ 1 , .., m-1 \} &&\text{ (3)} \\
+    argmin_{ p \in \{ i \in \{ 1 , .., n \} | x_{ib} = 1 \} } p &\leqslant argmin_{ p \in \{ i \in \{ 1 , .., n \} | x_{i,b+1} = 1 \} } p \quad \forall b \in \{ 1 , .., m-1 \} &&\text{ (4)}
 \end{align*}
 
 Où la contrainte (3) force les bins ouverts à être ceux avec les plus petits identifiants et la contrainte (4) ordonne les bins par le schéma d'objet qu'il contient. Mais même si cela ne règle pas le problème des variables redondantes, et rend ce défaut nécessaire par leur utilisation. \newline
 
-Si on veux les écrire avec des contraintes linéaires on peut écrire la contrainte (4) avec :
+Si on veut les écrire avec des contraintes linéaires, on peut écrire la contrainte (4) avec :
 
 \begin{align*}
- \forall p \in [\![ 2 , n ]\!] : \forall b \in [\![ 2 , m ]\!] : x_{pb} \leqslant \sum \limits_{pp = 1}^{p-} x_{pp,b-1} \text{ (4')}\\
- x(1,1) = 1 \text{ (4'')}
+    x_{pb} &\leqslant \sum \limits_{pp = 1}^{p-} x_{pp,b-1} \quad \forall p \in \{ 2 , .., n \} : \forall b \in \{ 2 , .., m \} &&\text{ (4')}\\
+     x(1,1) &= 1 &&\text{ (4'')}
 \end{align*}
-De plus on peut remarquer que sous ses contraintes on a toujours :
+De plus on peut remarquer que sous ces contraintes on a toujours :
 \begin{align*}
- \forall p \in [\![ 1 , n ]\!] : \forall b \in [\![ p+1 , m ]\!] : x_{pb} = 0 \text{ (5)}
+    x_{pb} = 0 \quad \forall p \in \{ 1 , .., n \} \quad \forall b \in \{ p+1 , .., m \} \text{ (5)}
 \end{align*}
 
 
 \section{Relaxation linéaire}
 
 La relaxation linéaire de (PE) s'écrit :\\
-$\text{(Rl) : } z_{\text{Rl}} = \text{ min } \sum \limits_{b = 1 }^{n} u_b$\\
-s.c.
+
+
 \begin{align*}
- \forall b \in [\![ 1 , m ]\!] : \sum \limits_{p = 1}^{n} s_p x_{pb} \leqslant u_b c \text{ (1)}\\
- \forall p \in [\![ 1 , n ]\!] : \sum \limits_{b = m}^{n} x_{pb} = 1 \text{ (2)} \\
- \forall p \in [\![ 1 , n ]\!] : \forall b \in [\![ 1 , m ]\!] : u_b , x_{pb} \in [0,1]
+    \text{(Rl) : } &z_{\text{Rl}} = \text{ min } \sum \limits_{b = 1 }^{n} u_b\\
+     \text{s.c } &\sum \limits_{p = 1}^{n} s_p x_{pb} \leqslant u_b c \quad \forall b \in \{ 1 , .., m \} &&\text{ (1)}\\
+     &\sum \limits_{b = m}^{n} x_{pb} = 1 \quad \forall p \in \{ 1 , .., n \} &&\text{ (2)} \\
+     &u_b , x_{pb} \in [0,1] \quad \forall p \in \{ 1 , .., n \} \quad \forall b \in \{ 1 , .., m \}
 \end{align*}
-Mais on peut alors toujours dire que la valeur de la relaxation linéaire est $\frac{\sum \limits_{p = 1}^n s_p}{c}$. Sauf que la valeur de (PE) est toujours entière donc on peut utiliser comme borne inférieure $\Bigl\lceil\dfrac{\sum \limits_{p = 1}^n s_p}{c}\Bigr\rceil\qquad$
+
+De plus on peut montrer que la valeur de la relaxation linéaire est $\frac{\sum \limits_{p = 1}^n s_p}{c}$. La valeur  optimale de (PE) étant toujours entière, peut ainsi utiliser comme borne inférieure $\Bigl\lceil\dfrac{\sum \limits_{p = 1}^n s_p}{c}\Bigr\rceil\qquad$
 
 \begin{proof}
-Soit $u^*_b$ et $x^*_{bp}$ la valeur des variables dans la solution optimale de la relaxation linéaire. Alors on a bien évidement $\forall p \in [\![ 1 , n ]\!] : \sum \limits_{b = 1}^{m} x^*_{pb} = 1$ par la contrainte (2). De plus, vu que chaque $u_b$ n’apparais que dans une contrainte, on peut dire que $u^*_b = \frac{\sum \limits_{p=1}^n s_p x^*_{pb}}{c}$ par la contrainte (1). En effet on est dans un problème de min donc cette contrainte est limitante, par propriété du simplexe elle sera vérifié a l'égalité dans la solution optimale (car elles sont toutes indépendantes). La valeur cette solution est alors $\sum \limits_{b = 1}^m  \frac{\sum \limits_{p=1}^n s_p x^*_{pb}}{c} = \frac{\sum \limits_{p = 1}^n s_p}{c}$ par la contrainte (2).\\
+Soit $u^*_b$ et $x^*_{bp}$ la valeur des variables dans la solution optimale de la relaxation linéaire. Alors on a $\forall p \in \{ 1 , .., n \} : \sum \limits_{b = 1}^{m} x^*_{pb} = 1$ par la contrainte (2). De plus, étant donné que chaque $u_b$ n’apparait que dans une contrainte, on peut dire que $u^*_b = \frac{\sum \limits_{p=1}^n s_p x^*_{pb}}{c}$ par la contrainte (1). En effet ce problème est un problème de minimisation donc cette contrainte est limitante. Par propriété de l'algorithme du simplexe elle sera vérifiée à l'égalité dans la solution optimale (car elles sont toutes indépendantes). La valeur cette solution est alors $\sum \limits_{b = 1}^m  \frac{\sum \limits_{p=1}^n s_p x^*_{pb}}{c} = \frac{\sum \limits_{p = 1}^n s_p}{c}$ par la contrainte (2).\\
 \end{proof}
+
+\section{Heuristique de construction}
+
+Afin d'obtenir rapidement une borne supérieurs intéressante pour ce problème, une heuristique de construction peut être utilisée.
+Dans ce projet, l'heuristique best fit a été implémentée.
+L'aglorithme de best fit consiste à ajouter les objets du plus grand au plus petit. De plus, l'ajout est d'abord tenté dans les bins les plus remplis en premier. Si l'objet ne peut être ajouté dans aucun bin, un nouveau bin est alors ouvert.
 
 \section{Relaxations lagrangiennes possibles}
 
-
+Plusieurs choix de contraintes étaient possibles pour la relaxation lagrangienne.
+Les contraintes dualisées ont été choisies afin d'obtenir des sous-problèmes simples à résoudre et décomposable.
+Dans cette partie, deux relaxations qui nous semblaient intéressantes sont détaillées.
 
 \subsection{Dualisation de la contrainte 1}
+
 Premièrement on remarque que l'on peut séparer en deux la contrainte (1) et donc écrire (PE) comme : \\
+
 $\text{(PE) : } z = \text{ min } \sum \limits_{b = 1 }^{m} u_b$\\
 s.c.
 \begin{align*}
@@ -138,7 +150,7 @@ Où $\mu \geqslant 0$ car la contrainte $(1')$ est une contrainte en inégalité
 En écrivant la fonction objectif comme  $z_{1'}(u) = \text{min } \sum \limits_{b = 1}^{m}( u_b + \sum \limits_{p = 1}^n (\mu_b s_p x_{pb})) - \sum \limits_{b = 1}^{m} \mu_b c$. On peut alors voir $RL_{1'}(u)$ comme un problème d'UFLP (uncapacited facility location problem) avec des coûts d'ouverture de $1$ et des coûts d'associations de $\mu_b s_p$. A noter que l'on ajoute un terme constant à la fonction objectif pour obtenir la vraie valeur de la relaxation lagrangienne.
 
 Alors comme on l'a fait en cours on peut dualiser la contrainte (2) pour obtenir :\\
-$RL_{1',2}(u) \text{ : } z_{1',2}(u) = \text{ min } \sum \limits_{b = 1}^{m}( u_b + \sum \limits_{p = 1}^n (\mu_b s_p x_{pb})) - \sum \limits_{b = 1}^{m} \mu_b c + \sum \limits_{p = 1}^n \gamma_p (1 - \sum \limits_{b = 1}^m x_{pb}$\\
+$RL_{1',2}(u) \text{ : } z_{1',2}(u) = \text{ min } \sum \limits_{b = 1}^{m}( u_b + \sum \limits_{p = 1}^n (\mu_b s_p x_{pb})) - \sum \limits_{b = 1}^{m} \mu_b c + \sum \limits_{p = 1}^n \gamma_p (1 - \sum \limits_{b = 1}^m x_{pb})$\\
 s.c.
 \begin{align*}
  \forall p \in [\![ 1 , n ]\!] : \forall b \in [\![ 1 , m ]\!] : x_{pb} \leqslant u_b \text{ (1'')}\\
@@ -168,7 +180,7 @@ De plus on peut remarquer que la contrainte anti-symétrie (5) ne nuit pas au la
 
 \subsection{Dualisation de la contrainte 2}
 
-Une autre possibilité est de dualiser la contrainte 2) : $\sum_{b=1}^m x_{pb} = 1$. \newline
+Une autre possibilité est de dualiser la contrainte (2) : $\sum_{b=1}^m x_{pb} = 1$. \newline
 
 On obtient alors :\\
 $RL_2(u) \text{ : } z_2(u) = \text{ min } \sum \limits_{b = 1}^{m} u_b + \sum \limits_{p = 1}^{n} \mu_p (1 - \sum \limits_{b = 1}^{m} x_{pb})$\\
@@ -206,7 +218,7 @@ On peut ainsi résoudre $RL_2(u)$ en résolvant 1 problème de sac à dos, en mu
 
 \section{Algorithme de sous-gradient}
 
-Pour les 2 relaxations nous avons implémenté un algorithme de sous-gradient avec une longueur de pas dépendant de la satisfaction des contraintes.
+Afin de trouver les multiplicateurs des contraintes dualisées de la relaxation qui donnent la meilleure relaxation possible, nous avons implémenté un algorithme de sous-gradient avec une longueur de pas dépendant de la satisfaction des contraintes.
 
 \begin{algorithm}
 \caption{algorithme de sous-gradient}
@@ -235,16 +247,16 @@ Toutes les résolutions se font selon des procédures spécifiques à la relaxat
 Le calcul du pas se fait en 2 partie :
 \begin{enumerate}[1 - ]
 \item
-Le calcul du pois de ce pas $\nu = \epsilon . \frac{\omega - val}{||d - Dx(\mu)||^2}$ où $\omega$ est un majorant de la valeur de la relaxation lagrangienne (la valeur de best-fit est utilisée en pratique), val est la valeur courante de la fonction objectif dualisé, et $Dx \{\leqslant, =, \geqslant\} d$ sont les contraintes qui ont été dualisé ($x(\mu)$ est la valeur optimale de x dans les sous-problème avec les coef $\mu$).
+Le calcul du pois de ce pas : $\nu = \epsilon . \frac{\omega - val}{||d - Dx(\mu)||^2}$ où $\omega$ est un majorant de la valeur de la relaxation lagrangienne (la valeur de best-fit est utilisée en pratique), val est la valeur courante de la fonction objectif dualisé, et $Dx \{\leqslant, =, \geqslant\} d$ sont les contraintes qui ont été dualisé ($x(\mu)$ est la valeur optimale de x dans les sous-problème avec les coef $\mu$).
 \item
 Ensuite le pas est $\mu = max(\mu + \nu ( d - Dx(\mu)), 0)$
 \end{enumerate}
-$\epsilon$ est un facteur qui va déterminer la taille du pas, au départ il est fixé à une valeur intermédiaire puis vas être diminué d'un facteur $\rho$ si aucune amélioration n'a été effectué en $t_{max}$ itérations, avec une ré-augmentation si sa valeur devient vraiment trop faible. De plus, dans le cadre de la première relaxation, on utilise deux $\nu$ et $\epsilon$, un pour chaque type de contraintes. En effet leur nature étant profondément différente les même valeurs ne leurs conviennent pas. Enfin il faut noter que le signe de $\gamma$ est libre donc sa mise a jour ne comprend pas de max.
+$\epsilon$ est un facteur qui va déterminer la taille du pas, au départ il est fixé à une valeur intermédiaire puis vas être diminué d'un facteur $\rho$ si aucune amélioration n'a été effectué en $t_{max}$ itérations, avec une ré-augmentation si sa valeur devient vraiment trop faible. De plus, dans le cadre de la première relaxation, on utilise deux $\nu$ et $\epsilon$, un pour chaque type de contraintes. En effet la nature des contraintes dualisées étant profondément différente les même valeurs ne leurs conviennent pas. Enfin il faut noter que le signe du multiplicateur est libre ($\gamma$ de la première est $\mu$ de la seconde)  il n'y a pas de max.
 \item
 On dispose de plusieurs critère d’arrêt, l'activation de l'un d'entre eux suffit :
 \begin{itemize}
 \item
-$\nu < \nu_{min} \land val > \bar{omega} -1$ où $\nu_{min}$ est un seuil sur $\nu$ et $\bar{\omega}$ la valeur de la relaxation linéaire. Cette formule signifie que l'algorithme a convergé vers une valeur au moins aussi bonne que la relaxation linéaire (la valeur de la relaxation lagrangienne est sensé être au moins aussi bonne).
+$\nu < \nu_{min} \land val > \bar{\omega} -1$ où $\nu_{min}$ est un seuil sur $\nu$ et $\bar{\omega}$ la valeur de la relaxation linéaire. Cette formule signifie que l'algorithme a convergé vers une valeur au moins aussi bonne que la relaxation linéaire (la valeur de la relaxation lagrangienne est sensé être au moins aussi bonne).
 \item
 $\omega - val < 1$ qui signifie que la solution construite est optimale
 \item
@@ -253,6 +265,10 @@ $\nu = 0$ qui signifie que les contraintes dualisé sont toutes vérifié
 $\text{no\_improve} \geqslant \text{max\_no\_improve}$ qui limite le temps de calcul maximal
 \end{itemize}
 \end{itemize}
+
+\section{Tests}
+
+\section{Détails sur le programme}
 
 \section{Conclusion}
 
