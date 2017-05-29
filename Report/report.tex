@@ -268,9 +268,99 @@ $\text{no\_improve} \geqslant \text{max\_no\_improve}$ qui limite le temps de ca
 
 \section{Tests}
 
+Les tests ont été réalisé sur chacunes des instances disponibles.
+C'est la deuxième relaxation lagrangienne qui a été utilisée pour fournir la borne car la première ne donnait pas de bons résultats (l'algorithme des sous-gradients ne parvenait pas à converger).
+Etant donné que l'algorithme des sous-gradients peut avoir des difficultés pour converger, une limite de temps de 15 minutes a été utilisée pour la relaxation lagrangienne.
+Les résultats obtenus sont présents en annexe.
+
 \section{Détails sur le programme}
+
+Tous les algorithmes présentés dans ce rapport ont été implémenté en python.
+Pour exécuter le programme, il faut se placer dans le dossier \textit{code} et utiliser la commande : \textit{python3 bin\_packing.py nom\_de\_l'instance}.
+Le programme fourni alors les différentes bornes: la borne de la relaxation linéaire, la borne de best fit, la borne de la deuxième relaxation lagrangienne et la borne de l'algorithme de reconstruction basé sur la deuxième relaxation lagrangienne.\newline
+
+Pour les besoin de la deuxième relaxation lagrangienne, un petit solver de problème sac à dos (branch and bound) a été implémenté dans le fichier \textit{knapsack.py}.
+Le fichier \textit{instance.py} contient les fonctions nécessaires pour charger l'instance du problème et pour calculer la valeur de la relaxation linéaire.
+L'algorithme best fit est implémenté dans le fichier \textit{heuristique.py}.
+La première relaxation lagrangienne est calculée dans le fichier \textit{lagrange.py} et la deuxième est présente dans \textit{lagrange\_kp2.py}.
+Enfin, le fichier \textit{reparation.py} contient l'algorithme de réparation basé sur la relaxation lagrangienne.
 
 \section{Conclusion}
 
+\section{Annexe}
+
+Résultats sur les instances avec des boîtes de taille 150 :\\
+
+\begin{tabular} {|c|c|c|c|c|c|}
+    \hline
+    instance & best fit & relaxation linéaire & relaxation lagrangienne & reconstruction & temps (s) \\ \hline
+    Falkenauer\_u120\_00 & 49 & 49 & 46 & 48 & 284 \\ \hline
+    Falkenauer\_u120\_01 & 49 & 49 & 47 & 49 & 39 \\ \hline
+    Falkenauer\_u120\_02 & 47 & 47 & 44 & 46 & 35 \\ \hline
+    Falkenauer\_u120\_03 & 50 & 50 & 48 & 49 & 337 \\ \hline
+    Falkenauer\_u120\_04 & 50 & 50 & 48 & 50 & 77 \\ \hline
+    Falkenauer\_u120\_05 & 49 & 49 & 47 & 48 & 184 \\ \hline
+    Falkenauer\_u120\_06 & 49 & 49 & 46 & 48 & 137 \\ \hline
+    Falkenauer\_u120\_07 & 50 & 50 & 48 & 49 & 311 \\ \hline
+    Falkenauer\_u120\_08 & 51 & 51 & 48 & 50 & 257 \\ \hline
+    Falkenauer\_u120\_09 & 47 & 47 & 45 & 46 & 111 \\ \hline
+    Falkenauer\_u250\_00 & 100 & 100 & 97 & 99 & 240 \\ \hline
+    Falkenauer\_u250\_01 & 101 & 101 & 98 & 99 & 126 \\ \hline
+    Falkenauer\_u250\_02 & 104 & 104 & 100 & 102 & 767 \\ \hline
+    Falkenauer\_u250\_03 & 101 & 101 & 96 & 100 & 187 \\ \hline
+    Falkenauer\_u250\_04 & 102 & 102 & 100 & 101 & 257 \\ \hline
+    Falkenauer\_u250\_05 & 104 & 104 & 100 & 101 & 418 \\ \hline
+    Falkenauer\_u250\_06 & 103 & 103 & 99 & 101 & 137 \\ \hline
+    Falkenauer\_u250\_07 & 105 & 105 & 99 & 103 & 900 \\ \hline
+    Falkenauer\_u250\_08 & 107 & 107 & 102 & 105 & 900 \\ \hline
+    Falkenauer\_u250\_09 & 102 & 102 & 97 & 101 & 562 \\ \hline
+    Falkenauer\_u500\_00 & 201 & 201 & 194 & 192 & 900 \\ \hline
+    Falkenauer\_u500\_01 & 204 & 204 & 195 & 196 & 900 \\ \hline
+    Falkenauer\_u500\_02 & 205 & 205 & 199 & 196 & 900 \\ \hline
+    Falkenauer\_u500\_03 & 207 & 207 & 198 & 199 & 900 \\ \hline
+    Falkenauer\_u500\_04 & 209 & 208 & 199 & 201 & 900 \\ \hline
+    Falkenauer\_u500\_05 & 207 & 207 & 199 & 201 & 900 \\ \hline
+    Falkenauer\_u500\_06 & 210 & 210 & 203 & 199 & 901 \\ \hline
+    Falkenauer\_u500\_07 & 207 & 207 & 198 & 200 & 900 \\ \hline
+    Falkenauer\_u500\_08 & 199 & 198 & 192 & 192 & 900 \\ \hline
+    Falkenauer\_u500\_09 & 204 & 204 & 198 & 194 & 900 \\ \hline
+\end{tabular}\\ \\
+
+Résultats sur les instances avec des boîtes de taille 1000 :\\
+
+\begin{tabular} {|c|c|c|c|c|c|}
+    \hline
+    instance & best fit & relaxation linéaire & relaxation lagrangienne & reconstruction & temps \\ \hline
+    Falkenauer\_t120\_00 & 45 & 45 & 40 & 40 & 904 \\ \hline
+    Falkenauer\_t120\_01 & 45 & 45 & 40 & 40 & 900 \\ \hline
+    Falkenauer\_t120\_02 & 45 & 45 & 40 & 40 & 903 \\ \hline
+    Falkenauer\_t120\_03 & 46 & 46 & 40 & 40 & 903 \\ \hline
+    Falkenauer\_t120\_04 & 46 & 46 & 40 & 40 & 901 \\ \hline
+    Falkenauer\_t120\_05 & 46 & 46 & 40 & 40 & 905 \\ \hline
+    Falkenauer\_t120\_06 & 45 & 46 & 40 & 40 & 901 \\ \hline
+    Falkenauer\_t120\_07 & 46 & 46 & 40 & 40 & 900 \\ \hline
+    Falkenauer\_t120\_08 & 46 & 46 & 40 & 40 & 904 \\ \hline
+    Falkenauer\_t120\_09 & 45 & 45 & 40 & 40 & 903 \\ \hline
+    Falkenauer\_t249\_00 & 94 & 94 & 83 & 81 & 993 \\ \hline
+    Falkenauer\_t249\_01 & 95 & 95 & 83 & 83 & 1000 \\ \hline
+    Falkenauer\_t249\_02 & 94 & 94 & 83 & 83 & 910 \\ \hline
+    Falkenauer\_t249\_03 & 95 & 95 & 83 & 83 & 914 \\ \hline
+    Falkenauer\_t249\_04 & 95 & 95 & 83 & 78 & 1000 \\ \hline
+    Falkenauer\_t249\_05 & 95 & 95 & 83 & 83 & 935 \\ \hline
+    Falkenauer\_t249\_06 & 95 & 95 & 83 & 82 & 933 \\ \hline
+    Falkenauer\_t249\_07 & 96 & 96 & 83 & 83 & 901 \\ \hline
+    Falkenauer\_t249\_08 & 95 & 95 & 83 & 83 & 998 \\ \hline
+    Falkenauer\_t249\_09 & 95 & 95 & 83 & 83 & 934 \\ \hline
+    Falkenauer\_t60\_00 & 23 & 23 & 20 & 20 & 178 \\ \hline
+    Falkenauer\_t60\_01 & 23 & 23 & 20 & 20 & 177 \\ \hline
+    Falkenauer\_t60\_02 & 23 & 23 & 20 & 20 & 200 \\ \hline
+    Falkenauer\_t60\_03 & 23 & 23 & 20 & 20 & 181 \\ \hline
+    Falkenauer\_t60\_04 & 24 & 24 & 20 & 20 & 176 \\ \hline
+    Falkenauer\_t60\_05 & 23 & 23 & 20 & 20 & 179 \\ \hline
+    Falkenauer\_t60\_06 & 23 & 23 & 20 & 20 & 179 \\ \hline
+    Falkenauer\_t60\_07 & 23 & 23 & 20 & 20 & 180 \\ \hline
+    Falkenauer\_t60\_08 & 23 & 23 & 20 & 20 & 181 \\ \hline
+    Falkenauer\_t60\_09 & 23 & 23 & 20 & 20 & 180 \\ \hline
+\end{tabular}
 
 \end{document}
