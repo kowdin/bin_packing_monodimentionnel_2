@@ -28,7 +28,8 @@
 Dans ce projet, la méthode de la relaxation lagrangienne est utilisée afin d'obtenir des bornes pour le problème de bin packing.
 Dans un premier temps, une formulation du problème en programme linéaire en nombres entiers est proposée.
 Ensuite, une heuristique de construction de solution est détaillée, suivi du détail du calcul de la relaxation linéaire.
-Enfin, plusieurs relaxations lagrangiennes sont proposées et des tests sont interprétés.
+Après cela, plusieurs relaxations lagrangiennes sont proposées et les tests sont interprétés.
+Enfin, des indications sont données sur le programme produit.
 
 \section{Problème étudié}
 
@@ -266,10 +267,9 @@ $\text{no\_improve} \geqslant \text{max\_no\_improve}$ qui limite le temps de ca
 \end{itemize}
 \end{itemize}
 
-<<<<<<< HEAD
 \section{Réparation}
 
-Une fois la relaxation langragienne effectuée, le sous-problème du sac à dos nous donne une solution non admissible qui contient plusieurs fois le même bin (s'il a été ouvert lors de la relaxation). On dispose également des coefficients lagrangiens qui nous donnent une indication de la difficulté à placer les différents objets. 
+Une fois la relaxation langragienne effectuée, le sous-problème du sac à dos nous donne une solution non admissible qui contient plusieurs fois le même bin (s'il a été ouvert lors de la relaxation). On dispose également des coefficients lagrangiens qui nous donnent une indication de la difficulté à placer les différents objets.
 
 Pour reconstruire la solution, on regarde d'abord si la solution de la relaxation a ouvert au moins un bin ou pas (si c'est le cas ce seront tous les mêmes), et on prend ce premier bin dans notre solution réparée. On essaie ensuite de "cloner" ce bin en prenant des objets de même taille taille, si c'est possible. Une fois que l'on a fait cette première étape, on prends les objets restants à placer un par un dans l'ordre décroissant de leur coefficient de lagrange : si on peut le placer dans un bin déjà existant on le fait, sinon on ouvre un nouveau bin et on le met dedans.
 
@@ -281,28 +281,38 @@ Pour reconstruire la solution, on regarde d'abord si la solution de la relaxatio
 		\State ouvrir un nouveau bin qui contient les objets de "bin"
 		\State si possible, cloner ce bin avec d'autres objets de même taille
 		\EndIf
-		
+
 		\State trier les objets dans l'ordre décroissant des coefficients de lagrange
 		\While{il reste des objets à mettre}
 		\State prendre un objet dans l'ordre décroissant trié précédemment
 		\State placer l'objet dans un bin existant si possible
 		\State sinon créer un nouveau bin et le mettre dedans
 		\EndWhile
-		
+
 		\State \textbf{return} solutionRéparée
 		\EndFunction
 	\end{algorithmic}
 \end{algorithm}
 
-
-\section{Python}
-=======
 \section{Tests}
 
 Les tests ont été réalisé sur chacunes des instances disponibles.
 C'est la deuxième relaxation lagrangienne qui a été utilisée pour fournir la borne car la première ne donnait pas de bons résultats (l'algorithme des sous-gradients ne parvenait pas à converger).
 Etant donné que l'algorithme des sous-gradients peut avoir des difficultés pour converger, une limite de temps de 15 minutes a été utilisée pour la relaxation lagrangienne.
-Les résultats obtenus sont présents en annexe.
+Les résultats obtenus sont présents en annexe.\newline
+
+On remarque que pour un bon nombre d'instances, le temps pour effectuer la relaxation lagrangienne est supérieur à la limite autorisée.
+Pour certaines instances, le temps est dépassé de manière importante, ce qui indique que le sous problème à résoudre (sac à dos) peut être assez difficile à résoudre.
+Dans le cas où la limite de temps est dépassée, la relaxation lagrangienne reste proche et est parfois meilleure que la relaxation linéaire.
+La recontruction donne une borne proche de celle de best fit mais est rarement meilleures (y compris pour les instances où lalgorithme des sous gradients converge).\newline
+
+On remarque également que pour les instances de taille 120 dont les boîtes ont pour taille 150, l'algorithme converge.
+Cependant, cele n'est pas le cas pour les instances avec comme taille de boîte 1000.
+Il est donc probable que ces dernières instances soient plus difficiles.
+Cela peut s'expliquer avec le plus grand nombre de combinaisons d'objets possible dans les bins grâce à la plus grande capacité (voir formulation du problème pour la génération de colonne). \newline
+
+Dans les cas où l'algorithme des sous gradients converge, la relaxation lagrangienne est généralement meilleure que la relaxation linéaire.
+On peut également voir que dans le cas des instances dont la taille des boîtes est 1000, la relaxation lagrangienne et la reconstruction améliorent moins, ce qui conforte l'idée que ces instances sont plus difficiles.
 
 \section{Détails sur le programme}
 
@@ -317,7 +327,16 @@ La première relaxation lagrangienne est calculée dans le fichier \textit{lagra
 Enfin, le fichier \textit{reparation.py} contient l'algorithme de réparation basé sur la relaxation lagrangienne.
 
 \section{Conclusion}
->>>>>>> fc299b65ac2e0ca583b131416a1b6a23b34844c5
+
+Pour conclure, on peut voir que la relaxation lagrangienne donne des résultats intéressants.
+Lorsque l'algorithme parvient à converger, les bornes obtenues sont généralement meilleures que celles de la relaxation linéaire.
+Cependant, l'algorithme prend un temps considérable en comparaison à la relaxation linéaire.
+Utiliser cette méthode dans un algorithme de branch and bound n'est donc pas forcément la meilleure stratégie. Son utilisation pourrait cependant être combinée à d'autres bornes inférieures plus rapides à calculer.
+La relaxation lagrangienne peut également être utile pour vérifier le résultat d'un algorithme inexacte, type métaheuristique.\newline
+
+La reconstruction n'améliore pas vraiment l'heuristique best fit.
+Cependant on peut voir que best fit est parfois très proche de la solution optimale, ce qui en fait une heuristique très intéressante.
+Une autre idée pour la reconstruction qui n'a pas été testée pourrait être reconstruire une solution à partir du début en ajoutant les objets dont les multiplicateurs de la relaxation lagrangienne sont les plus grands (positifs ou négatifs) en premiers car ils correspondent aux objets difficiles à placer.
 
 \section{Annexe}
 
@@ -325,7 +344,7 @@ Résultats sur les instances avec des boîtes de taille 150 :\\
 
 \begin{tabular} {|c|c|c|c|c|c|}
     \hline
-    instance & best fit & relaxation linéaire & relaxation lagrangienne & reconstruction & temps (s) \\ \hline
+    instance & best fit & reconstruction & relaxation linéaire & relaxation lagrangienne & temps (s) \\ \hline
     Falkenauer\_u120\_00 & 49 & 49 & 46 & 48 & 284 \\ \hline
     Falkenauer\_u120\_01 & 49 & 49 & 47 & 49 & 39 \\ \hline
     Falkenauer\_u120\_02 & 47 & 47 & 44 & 46 & 35 \\ \hline
@@ -362,7 +381,7 @@ Résultats sur les instances avec des boîtes de taille 1000 :\\
 
 \begin{tabular} {|c|c|c|c|c|c|}
     \hline
-    instance & best fit & relaxation linéaire & relaxation lagrangienne & reconstruction & temps \\ \hline
+    instance & best fit & reconstruction & relaxation linéaire & relaxation lagrangienne & temps (s) \\ \hline
     Falkenauer\_t120\_00 & 45 & 45 & 40 & 40 & 904 \\ \hline
     Falkenauer\_t120\_01 & 45 & 45 & 40 & 40 & 900 \\ \hline
     Falkenauer\_t120\_02 & 45 & 45 & 40 & 40 & 903 \\ \hline
