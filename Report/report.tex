@@ -266,6 +266,37 @@ $\text{no\_improve} \geqslant \text{max\_no\_improve}$ qui limite le temps de ca
 \end{itemize}
 \end{itemize}
 
+<<<<<<< HEAD
+\section{Réparation}
+
+Une fois la relaxation langragienne effectuée, le sous-problème du sac à dos nous donne une solution non admissible qui contient plusieurs fois le même bin (s'il a été ouvert lors de la relaxation). On dispose également des coefficients lagrangiens qui nous donnent une indication de la difficulté à placer les différents objets. 
+
+Pour reconstruire la solution, on regarde d'abord si la solution de la relaxation a ouvert au moins un bin ou pas (si c'est le cas ce seront tous les mêmes), et on prend ce premier bin dans notre solution réparée. On essaie ensuite de "cloner" ce bin en prenant des objets de même taille taille, si c'est possible. Une fois que l'on a fait cette première étape, on prends les objets restants à placer un par un dans l'ordre décroissant de leur coefficient de lagrange : si on peut le placer dans un bin déjà existant on le fait, sinon on ouvre un nouveau bin et on le met dedans.
+
+\begin{algorithm}
+	\caption{algorithme de réparation}
+	\begin{algorithmic}[1]
+		\Function{Réparation}{instance, bin, ouvert, coef}
+		\If{ouvert}
+		\State ouvrir un nouveau bin qui contient les objets de "bin"
+		\State si possible, cloner ce bin avec d'autres objets de même taille
+		\EndIf
+		
+		\State trier les objets dans l'ordre décroissant des coefficients de lagrange
+		\While{il reste des objets à mettre}
+		\State prendre un objet dans l'ordre décroissant trié précédemment
+		\State placer l'objet dans un bin existant si possible
+		\State sinon créer un nouveau bin et le mettre dedans
+		\EndWhile
+		
+		\State \textbf{return} solutionRéparée
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+
+
+\section{Python}
+=======
 \section{Tests}
 
 Les tests ont été réalisé sur chacunes des instances disponibles.
@@ -286,6 +317,7 @@ La première relaxation lagrangienne est calculée dans le fichier \textit{lagra
 Enfin, le fichier \textit{reparation.py} contient l'algorithme de réparation basé sur la relaxation lagrangienne.
 
 \section{Conclusion}
+>>>>>>> fc299b65ac2e0ca583b131416a1b6a23b34844c5
 
 \section{Annexe}
 
